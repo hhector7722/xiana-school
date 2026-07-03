@@ -9,24 +9,30 @@ interface AudioRecorderProps {
   onTranscriptChange: (transcript: string) => void
 }
 
-const BAR_COUNT = 32
+const BAR_COUNT = 20
 
 function VolumeVisualizer({ volume }: { volume: number }) {
+  const barsRef = useRef<number[]>([])
+  if (barsRef.current.length !== BAR_COUNT) {
+    barsRef.current = Array.from({ length: BAR_COUNT }, () => Math.random())
+  }
+
   return (
-    <div className="flex items-center gap-[2px] h-9">
-      {Array.from({ length: BAR_COUNT }, (_, i) => {
-        const position = Math.abs(i - BAR_COUNT / 2) / (BAR_COUNT / 2)
-        const variation = 0.4 + 0.6 * Math.sin(i * 1.8 + 0.3)
-        const raw = (1 - position * 0.5) * variation * volume
-        const height = 3 + raw * 28
+    <div className="flex items-center gap-[1.5px] h-9">
+      {barsRef.current.map((seed, i) => {
+        const variation = 0.3 + 0.7 * seed
+        const center = (i - BAR_COUNT / 2) / (BAR_COUNT / 2)
+        const envelope = 1 - Math.abs(center) * 0.4
+        const raw = envelope * variation * volume
+        const height = 3 + raw * 32
         return (
           <div
             key={i}
-            className="w-[3px] rounded-full bg-accent"
+            className="w-[2px] rounded-full bg-accent"
             style={{
               height: `${Math.max(3, height)}px`,
-              transition: 'height 60ms ease',
-              opacity: 0.5 + volume * 0.5,
+              transition: 'height 50ms ease',
+              opacity: 0.4 + volume * 0.6,
             }}
           />
         )
@@ -143,21 +149,36 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
       )}
 
       {status === 'recording' && (
-        <div className="flex items-center gap-4 rounded-xl border border-[#ECECEC] px-4 py-3" role="status" aria-label="Grabación en curso">
+        <div
+          className="flex items-center gap-3 rounded-xl border border-[#ECECEC] px-4 py-3"
+          role="status"
+          aria-label="Grabación en curso"
+        >
           <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0" />
-          <span className="text-sm tabular-nums text-gray-500 font-medium min-w-[48px]">
+
+          <span className="text-sm tabular-nums text-gray-500 font-medium min-w-[44px]">
             {formatTime(elapsed)}
           </span>
-          <div className="flex-1 flex items-center">
+
+          <div className="flex-1 flex items-center justify-center min-w-0">
             <VolumeVisualizer volume={volume} />
           </div>
+
           <button
             type="button"
             onClick={stopRecording}
             aria-label="Detener grabación"
-            className="text-xs font-medium text-red-500 hover:text-red-700 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/20 rounded shrink-0"
+            className="shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-red-300 active:scale-[0.92]"
           >
-            Detener
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <rect x="6" y="6" width="12" height="12" rx="2" />
+            </svg>
           </button>
         </div>
       )}
