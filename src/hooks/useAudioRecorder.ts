@@ -4,6 +4,19 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 
 export type AudioStatus = 'idle' | 'recording' | 'transcribing' | 'done'
 
+const MAX_FILE_SIZE = 25 * 1024 * 1024
+
+function getSupportedMimeType(): string {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  const types = isIOS
+    ? ['audio/mp4', 'audio/aac', 'audio/webm', 'audio/webm;codecs=opus']
+    : ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac', 'audio/ogg;codecs=opus']
+  for (const type of types) {
+    if (MediaRecorder.isTypeSupported(type)) return type
+  }
+  return ''
+}
+
 export function useAudioRecorder() {
   const [status, setStatus] = useState<AudioStatus>('idle')
   const [transcript, setTranscript] = useState<string | null>(null)
@@ -77,12 +90,10 @@ export function useAudioRecorder() {
       }
       animationRef.current = requestAnimationFrame(updateVolume)
 
-      const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-        ? 'audio/webm;codecs=opus'
-        : MediaRecorder.isTypeSupported('audio/webm')
-          ? 'audio/webm'
-          : ''
-      const recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream)
+      const mimeType = getSupportedMimeType()
+      const recorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream)
       mediaRecorder.current = recorder
 
       recorder.ondataavailable = (e) => {
@@ -95,11 +106,18 @@ export function useAudioRecorder() {
         const url = URL.createObjectURL(blob)
         setAudioUrl(url)
         stopTracks()
+
+        if (blob.size > MAX_FILE_SIZE) {
+          setTranscript('Error: El audio excede 25MB')
+          setStatus('done')
+          return
+        }
+
         setStatus('transcribing')
 
         try {
           const formData = new FormData()
-          formData.append('file', blob, 'audio.webm')
+          formData.append('file', blob, `audio.${recorder.mimeType?.split('/')[1]?.split(';')[0] || 'webm'}`)
 
           const resp = await fetch('/api/transcribe', {
             method: 'POST',
@@ -114,7 +132,7 @@ export function useAudioRecorder() {
           }
         } catch (e) {
           console.error('Transcription fetch error:', e)
-          setTranscript(`Error: ${e instanceof Error ? e.message : 'Unknown error'}`)
+          setTranscript(`Error: ${e instanceof Error ? e.message : 'Error desconocido'}`)
         }
 
         setStatus('done')
