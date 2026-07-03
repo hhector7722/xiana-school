@@ -144,8 +144,8 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
   const showRecordButton = status === 'idle' || status === 'done'
 
   return (
-    <div className="flex flex-col gap-4">
-      <p className="text-base font-semibold text-gray-900 leading-relaxed">{question}</p>
+    <div className="flex flex-col gap-2.5">
+      <p className="text-sm sm:text-base font-semibold text-gray-900 leading-snug">{question}</p>
 
       <textarea
         ref={textareaRef}
@@ -153,7 +153,7 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
         onChange={handleTextChange}
         placeholder="Escribe tu respuesta aquí..."
         rows={1}
-        className="w-full rounded-xl border border-[#ECECEC] p-4 text-sm text-gray-700 resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent/20"
+        className="w-full rounded-lg border border-[#ECECEC] px-3 py-2 text-sm text-gray-700 resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent/20 leading-relaxed"
         aria-label="Respuesta"
       />
 
@@ -162,11 +162,11 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
           type="button"
           onClick={handleStartRecording}
           aria-label="Empezar a grabar respuesta"
-          className="inline-flex items-center justify-center rounded-xl h-10 px-5 text-sm font-medium transition-all duration-150 bg-accent text-white border border-accent hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent/30 gap-2 w-fit active:scale-[0.98]"
+          className="inline-flex items-center justify-center rounded-lg h-8 px-3.5 text-xs font-medium transition-all duration-150 bg-accent text-white border border-accent hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent/30 gap-1.5 w-fit active:scale-[0.98]"
         >
           <svg
-            width="14"
-            height="14"
+            width="11"
+            height="11"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -185,13 +185,13 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
 
       {status === 'recording' && (
         <div
-          className="flex items-center gap-3 rounded-xl border border-[#ECECEC] px-4 py-3"
+          className="flex items-center gap-2 rounded-lg border border-[#ECECEC] px-3 py-2"
           role="status"
           aria-label="Grabación en curso"
         >
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0" />
+          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
 
-          <span className="text-sm tabular-nums text-gray-500 font-medium min-w-[44px]">
+          <span className="text-xs tabular-nums text-gray-500 font-medium min-w-[36px]">
             {formatTime(elapsed)}
           </span>
 
@@ -203,11 +203,11 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
             type="button"
             onClick={stopRecording}
             aria-label="Detener grabación"
-            className="shrink-0 w-9 h-9 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-red-300 active:scale-[0.92]"
+            className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-red-300 active:scale-[0.92]"
           >
             <svg
-              width="12"
-              height="12"
+              width="10"
+              height="10"
               viewBox="0 0 24 24"
               fill="currentColor"
               aria-hidden="true"
@@ -219,9 +219,9 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
       )}
 
       {status === 'transcribing' && (
-        <div className="flex items-center gap-3 animate-fade-in" role="status" aria-label="Analizando respuesta">
-          <span className="w-4 h-4 rounded-full border-2 border-[#ECECEC] border-t-accent animate-spin" />
-          <span className="text-sm text-gray-400">Analizando respuesta…</span>
+        <div className="flex items-center gap-2 animate-fade-in" role="status" aria-label="Analizando respuesta">
+          <span className="w-3 h-3 rounded-full border-2 border-[#ECECEC] border-t-accent animate-spin" />
+          <span className="text-xs text-gray-400">Analizando respuesta…</span>
         </div>
       )}
     </div>

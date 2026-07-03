@@ -40,27 +40,31 @@ export function StepBlock({
   )
 
   return (
-    <div className="flex flex-col gap-6 py-4 md:py-6 relative">
-      <img
-        src="/logo.png"
-        alt="Logo"
-        className="absolute top-0 right-0 h-10"
-      />
-      <div>
-        <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-gray-900 leading-tight">
-          {block.title}
-        </h2>
-        <p className="text-sm text-gray-500 leading-relaxed mt-2">
-          {block.subtitle}
-        </p>
+    <div className="flex flex-col gap-3 py-2 relative">
+      <div className="flex items-start justify-between">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl sm:text-2xl font-medium tracking-tight text-gray-900 leading-tight">
+            {block.title}
+          </h2>
+          {block.subtitle && (
+            <p className="text-xs sm:text-sm text-gray-500 leading-relaxed mt-0.5">
+              {block.subtitle}
+            </p>
+          )}
+        </div>
+        <img
+          src="/logo.png"
+          alt="Logo"
+          className="h-8 sm:h-9 ml-3 shrink-0"
+        />
       </div>
 
-      <hr className="border-t border-gray-100 mx-2" />
+      <hr className="border-t border-gray-100" />
 
-      <div className="space-y-4">
+      <div className="space-y-2.5">
         {block.questions.map((q) => (
-          <div key={q.id} className="space-y-2">
-            <p className="text-base font-semibold text-gray-900 leading-relaxed">{q.text}</p>
+          <div key={q.id} className="space-y-1.5">
+            <p className="text-sm sm:text-base font-semibold text-gray-900 leading-snug">{q.text}</p>
             <YesNoToggle
               value={answers[q.id] ?? null}
               onChange={(v) => onAnswer(q.id, v)}
@@ -70,14 +74,14 @@ export function StepBlock({
       </div>
 
       <AudioRecorder
-  question={block.audioPrompt}
-  initialTranscript={initialTranscript}
-  onTranscriptChange={handleTranscriptChange}
-/>
+        question={block.audioPrompt}
+        initialTranscript={initialTranscript}
+        onTranscriptChange={handleTranscriptChange}
+      />
 
       <ProgressBar current={stepNumber} total={totalSteps} />
 
-      <div className="flex items-center justify-between pt-4">
+      <div className="flex items-center justify-between pt-1.5">
         <Button variant="secondary" onClick={onBack}>
           Atrás
         </Button>

@@ -178,9 +178,9 @@ export function OnboardingContainer() {
 
   return (
     <div className="bg-page min-h-screen flex flex-col">
-      <main className="flex-1 flex flex-col items-center justify-center px-5 py-8 md:py-12">
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-3 md:py-6">
         <div className="w-full max-w-2xl mx-auto">
-          <div className="bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-6 md:p-10 relative overflow-hidden">
+          <div className="bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4 md:p-6 relative overflow-hidden">
             {/* HERO: welcome exiting */}
             {tran.phase === 'hero-exiting' && (
               <div key={tran.prevStep} className="animate-hero-exit">
