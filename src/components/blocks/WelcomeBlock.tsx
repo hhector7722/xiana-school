@@ -18,12 +18,8 @@ export function WelcomeBlock({ onStart }: WelcomeBlockProps) {
         Hola, Julia
       </h1>
 
-      <p className="text-base sm:text-lg text-gray-500 leading-relaxed mb-3 max-w-md">
-        Analicemos tus procesos actuales y identifiquemos los puntos de fricción en tu día a día.
-      </p>
-
-      <p className="text-sm text-gray-400 leading-relaxed mb-10">
-        Este diagnóstico es el primer paso para diseñar una herramienta a tu medida. Tus avances se guardan automáticamente.
+      <p className="text-base sm:text-lg text-gray-500 leading-relaxed mb-10 max-w-md">
+        Analicemos cómo trabajas actualmente, qué herramientas utilizas, cómo las utilizas e identifiquemos los principales puntos de fricción de tu día a día.
       </p>
 
       <Button onClick={onStart} className="min-w-[140px]" aria-label="Comenzar el cuestionario">
