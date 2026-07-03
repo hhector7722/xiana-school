@@ -39,12 +39,12 @@ function tranReducer(state: TranState, action: TranAction): TranState {
 }
 
 function exitClass(dir: Dir, isFirstCard: boolean): string {
-  if (isFirstCard) return 'animate-scale-out'
+  if (isFirstCard) return 'animate-hero-exit'
   return dir === 'forward' ? 'animate-slide-out-left' : 'animate-slide-out-right'
 }
 
 function enterClass(dir: Dir, isFirstCard: boolean): string {
-  if (isFirstCard) return 'animate-slide-up'
+  if (isFirstCard) return 'animate-hero-enter'
   return dir === 'forward' ? 'animate-slide-in-right' : 'animate-slide-in-left'
 }
 
@@ -79,8 +79,8 @@ export function OnboardingContainer() {
   const startTransition = useCallback((nextStep: number, dir: Dir, onAdvance: () => void) => {
     const isFirstCard = dir === 'forward' && nextStep === 1
     dispatchTran({ type: 'START_EXIT', step: nextStep, dir })
-    const exitMs = isFirstCard ? 250 : 200
-    const enterMs = isFirstCard ? 350 : 250
+    const exitMs = isFirstCard ? 350 : 280
+    const enterMs = isFirstCard ? 450 : 320
     setTimeout(() => {
       onAdvance()
       dispatchTran({ type: 'END_EXIT' })
