@@ -1,7 +1,5 @@
 import OpenAI from 'openai'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
 export async function POST(request: Request) {
   try {
     const { audio } = await request.json()
@@ -9,6 +7,11 @@ export async function POST(request: Request) {
       return Response.json({ success: false, error: 'Missing audio payload' }, { status: 400 })
     }
 
+    const apiKey = process.env.OPENAI_API_KEY ?? process.env.NEXT_PUBLIC_OPENAI_API_KEY
+    if (!apiKey) {
+      return Response.json({ success: false, error: 'API key not configured' }, { status: 500 })
+    }
+    const openai = new OpenAI({ apiKey })
     const audioBuffer = Buffer.from(audio, 'base64')
     const file = new File([audioBuffer], 'audio.webm', { type: 'audio/webm' })
 
