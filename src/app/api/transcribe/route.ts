@@ -1,41 +1,4 @@
-async function transcribeWithGemini(file: File): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY ?? process.env.NEXT_PUBLIC_GEMINI_API_KEY
-  if (!apiKey) throw new Error('Gemini API key not configured')
-
-  const buffer = await file.arrayBuffer()
-  const base64 = Buffer.from(buffer).toString('base64')
-  const mimeType = file.type || 'audio/webm'
-
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { inline_data: { mime_type: mimeType, data: base64 } },
-              { text: 'Transcribe este audio en español. Devuelve SOLO el texto transcrito, sin comentarios ni formato adicional.' },
-            ],
-          },
-        ],
-      }),
-    },
-  )
-
-  if (!res.ok) {
-    const errText = await res.text()
-    throw new Error(`Gemini error ${res.status}: ${errText}`)
-  }
-
-  const data = (await res.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
-  }
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-  if (!text) throw new Error('Empty response from Gemini')
-  return text.trim()
-}
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 export async function POST(request: Request) {
   try {
@@ -51,8 +14,38 @@ export async function POST(request: Request) {
       return Response.json({ success: false, error: 'File field required' }, { status: 400 })
     }
 
-    const transcript = await transcribeWithGemini(file)
-    return Response.json({ success: true, transcript })
+    const apiKey = process.env.GEMINI_API_KEY ?? process.env.NEXT_PUBLIC_GEMINI_API_KEY
+    if (!apiKey) {
+      return Response.json({ success: false, error: 'Gemini API key not configured' }, { status: 500 })
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+
+    const buffer = await file.arrayBuffer()
+    const base64 = Buffer.from(buffer).toString('base64')
+    const mimeType = (file.type || 'audio/webm').split(';')[0].trim()
+
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { text: 'Transcribe este audio en español. Devuelve SOLO el texto transcrito, sin comentarios ni formato adicional.' },
+            {
+              inlineData: { mimeType, data: base64 },
+            },
+          ],
+        },
+      ],
+    })
+
+    const text = result.response.text()
+    if (!text) {
+      return Response.json({ success: false, error: 'Empty transcription' }, { status: 502 })
+    }
+
+    return Response.json({ success: true, transcript: text.trim() })
   } catch (e: any) {
     console.error('[transcribe]', e)
     return Response.json({ success: false, error: e?.message || 'Unexpected error' }, { status: 500 })

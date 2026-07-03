@@ -110,11 +110,11 @@ export function useAudioRecorder() {
             setTranscript(result.transcript)
           } else {
             console.error('Transcription error:', result.error)
-            setTranscript('Error al transcribir el audio. Inténtalo de nuevo.')
+            setTranscript(`Error: ${result.error}`)
           }
         } catch (e) {
           console.error('Transcription fetch error:', e)
-          setTranscript('Error al transcribir el audio. Inténtalo de nuevo.')
+          setTranscript(`Error: ${e instanceof Error ? e.message : 'Unknown error'}`)
         }
 
         setStatus('done')
