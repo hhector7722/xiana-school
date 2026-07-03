@@ -97,23 +97,13 @@ export function useAudioRecorder() {
         stopTracks()
         setStatus('transcribing')
 
-        // Convert blob to base64 string
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onloadend = () => {
-            const result = reader.result as string
-            const b64 = result.split(',')[1]
-            resolve(b64)
-          }
-          reader.onerror = reject
-          reader.readAsDataURL(blob)
-        })
-
         try {
+          const formData = new FormData()
+          formData.append('file', blob, 'audio.webm')
+
           const resp = await fetch('/api/transcribe', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ audio: base64 }),
+            body: formData,
           })
           const result = await resp.json()
           if (result.success) {
