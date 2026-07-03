@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 
@@ -7,14 +7,19 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://xiana-school.vercel.app"),
   title: "Xiana Language School",
-  description: "",
   openGraph: {
     title: "Xiana Language School",
-    description: "",
-    images: [{ url: "/logo.png", width: 512, height: 512 }],
+    images: [{ url: "/logo.png", width: 200, height: 200 }],
   },
   twitter: {
     card: "summary",

@@ -4,11 +4,11 @@ export const blocks: BlockDef[] = [
   {
     id: 'activity',
     title: 'Tu actividad',
-    subtitle: 'Cuéntame sobre tu trabajo como profesora de idiomas.',
+    subtitle: 'Cuéntame sobre tu trabajo como profesora.',
     questions: [
       { id: 'fulltime', text: '¿Enseñas idiomas a tiempo completo?' },
       { id: 'more_than_ten', text: '¿Tienes más de 10 alumnos?' },
-      { id: 'more_than_five_years', text: '¿Llevas más de 5 años dando clases?' },
+      { id: 'biggest_time_waster', text: '¿Qué tarea de tu trabajo te roba más tiempo?' },
     ],
     audioPrompt:
       'Cuéntame cómo es tu día a día como profesora. ¿Cómo empiezas y terminas tu jornada?',
@@ -22,16 +22,16 @@ export const blocks: BlockDef[] = [
       { id: 'trial_class', text: '¿Ofreces una clase de prueba gratuita?' },
     ],
     audioPrompt:
-      'Descríbeme el proceso completo desde que un alumno te contacta por primera vez hasta que se convierte en alumno regular.',
+      'Descríbeme el proceso completo desde que un alumno te contacta por primera vez hasta que se convierte en alumno.',
   },
   {
     id: 'organization',
     title: 'Organización',
     subtitle: '¿Cómo organizas tu trabajo?',
     questions: [
-      { id: 'digital_calendar', text: '¿Usas un calendario digital (Google Calendar, iCal, etc.)?' },
-      { id: 'fixed_schedule', text: '¿Tienes alumnos con horario fijo cada semana?' },
+      { id: 'fixed_schedule', text: '¿Hay alumnos con horario fijo cada semana?' },
       { id: 'variable_schedule', text: '¿Tienes alumnos con horario variable?' },
+      { id: 'admin_time_waster', text: '¿Qué tarea administrativa te hace perder más tiempo?' },
     ],
     audioPrompt:
       '¿Cómo organizas tu semana actualmente? ¿Qué herramienta usas para gestionar tus clases y horarios?',
@@ -41,9 +41,9 @@ export const blocks: BlockDef[] = [
     title: 'Clases online',
     subtitle: '¿Cómo son tus clases por videollamada?',
     questions: [
-      { id: 'uses_zoom', text: '¿Usas Zoom para tus clases online?' },
       { id: 'screen_sharing', text: '¿Compartes pantalla en las clases?' },
       { id: 'digital_whiteboard', text: '¿Usas pizarra digital o herramientas interactivas?' },
+      { id: 'online_frustration', text: '¿Qué parte de dar clase online te resulta más frustrante?' },
     ],
     audioPrompt:
       'Cuéntame cómo es una clase típica desde que te conectas hasta que terminas. ¿Qué herramientas usas durante la clase?',
@@ -53,8 +53,8 @@ export const blocks: BlockDef[] = [
     title: 'Comunicación',
     subtitle: '¿Cómo te comunicas con tus alumnos fuera de clase?',
     questions: [
-      { id: 'uses_whatsapp', text: '¿Usas WhatsApp para comunicarte con tus alumnos?' },
-      { id: 'uses_email', text: '¿Usas email para comunicarte con tus alumnos?' },
+      { id: 'comm_time', text: '¿Cuánto tiempo dedicas al día a responder mensajes de alumnos?' },
+      { id: 'comm_reduction', text: '¿Te gustaría reducir el tiempo que dedicas a la comunicación?' },
     ],
     audioPrompt:
       '¿Cómo gestionas la comunicación con tus alumnos entre clase y clase? ¿Te escriben mucho? ¿Cómo prefieres que te contacten?',
@@ -62,7 +62,7 @@ export const blocks: BlockDef[] = [
   {
     id: 'tracking',
     title: 'Seguimiento del alumno',
-    subtitle: '¿Cómo realizas el seguimiento de cada alumno?',
+    subtitle: '¿Realizas seguimiento al alumno?',
     questions: [
       { id: 'progress_tracking', text: '¿Llevas un registro del progreso de cada alumno?' },
       { id: 'homework', text: '¿Envías deberes o taras para hacer?' },
@@ -96,21 +96,20 @@ export const blocks: BlockDef[] = [
       '¿Cómo gestionas los cobros actualmente? ¿Te resulta fácil o es algo que te gustaría simplificar?',
   },
   {
-    id: 'tools',
-    title: 'Herramientas',
-    subtitle: '¿Qué herramientas utilizas en tu día a día?',
+    id: 'frictions',
+    title: 'Tareas repetitivas',
+    subtitle: '¿Qué tareas consumen más tiempo en tu día a día?',
     questions: [
-      { id: 'google_calendar', text: '¿Usas Google Calendar para gestionar tus clases?' },
-      { id: 'uses_zoom_again', text: '¿Usas Zoom para videollamadas?' },
-      { id: 'specialized_tool', text: '¿Usas alguna herramienta específica para profesores de idiomas?' },
+      { id: 'repetitive_task', text: '¿Qué tarea repites constantemente en tu trabajo?' },
+      { id: 'desired_automation', text: '¿Qué proceso te gustaría automatizar?' },
     ],
     audioPrompt:
-      'Háblame de todas las herramientas que usas en tu día a día como profesora. ¿Cuáles te gustan y cuáles no?',
+      'Háblame de las tareas que más repites en tu día a día. ¿Qué procesos sientes que podrían ser más eficientes?',
   },
   {
     id: 'improvements',
     title: 'Mejoras',
-    subtitle: '¿Qué te gustaría mejorar de tu forma de trabajar?',
+    subtitle: '¿Qué te gustaría mejorar de tu día a día?',
     questions: [
       { id: 'admin_time', text: '¿Sientes que pierdes tiempo en tareas administrativas?' },
       { id: 'wants_automation', text: '¿Te gustaría automatizar alguna parte de tu trabajo?' },
@@ -121,7 +120,7 @@ export const blocks: BlockDef[] = [
   {
     id: 'open_ended',
     title: 'Pregunta abierta final',
-    subtitle: 'Para terminar, cuéntame todo lo que consideres importante.',
+    subtitle: 'Aspectos importantes no mencionados.',
     questions: [
       { id: 'something_else', text: '¿Hay algún aspecto de tu trabajo del que no hayamos hablado?' },
     ],

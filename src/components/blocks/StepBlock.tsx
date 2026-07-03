@@ -40,11 +40,11 @@ export function StepBlock({
   )
 
   return (
-    <div className="flex flex-col gap-8 py-4 md:py-6 relative">
+    <div className="flex flex-col gap-6 py-4 md:py-6 relative">
       <img
         src="/logo.png"
         alt="Logo"
-        className="absolute top-0 right-0 h-8"
+        className="absolute top-0 right-0 h-10"
       />
       <div>
         <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-gray-900 leading-tight">
@@ -55,9 +55,9 @@ export function StepBlock({
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {block.questions.map((q) => (
-          <div key={q.id} className="space-y-3">
+          <div key={q.id} className="space-y-2">
             <p className="text-base font-semibold text-gray-900 leading-relaxed">{q.text}</p>
             <YesNoToggle
               value={answers[q.id] ?? null}

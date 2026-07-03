@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useAudioRecorder } from '@/hooks/useAudioRecorder'
 
 interface AudioRecorderProps {
@@ -48,12 +48,25 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
   const [textContent, setTextContent] = useState(initialTranscript ?? '')
   const [elapsed, setElapsed] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const autoResize = useCallback(() => {
+    const el = textareaRef.current
+    if (el) {
+      el.style.height = 'auto'
+      el.style.height = `${el.scrollHeight}px`
+    }
+  }, [])
 
   function handleTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const value = e.target.value
     setTextContent(value)
     onTranscriptChange(value)
   }
+
+  useEffect(() => {
+    autoResize()
+  }, [textContent, autoResize])
 
   useEffect(() => {
     if (status === 'done' && transcript) {
@@ -94,11 +107,12 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
       <p className="text-base font-semibold text-gray-900 leading-relaxed">{question}</p>
 
       <textarea
+        ref={textareaRef}
         value={textContent}
         onChange={handleTextChange}
         placeholder="Escribe tu respuesta aquí..."
-        rows={4}
-        className="w-full rounded-xl border border-[#ECECEC] p-4 text-sm text-gray-700 resize-y focus:outline-none focus:ring-2 focus:ring-accent/20"
+        rows={1}
+        className="w-full rounded-xl border border-[#ECECEC] p-4 text-sm text-gray-700 resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent/20"
         aria-label="Respuesta"
       />
 
