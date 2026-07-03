@@ -8,9 +8,19 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Julia — Descubrimiento de requisitos",
-  description:
-    "Cuestionario guiado para entender cómo trabajas y construir la aplicación que necesitas.",
+  metadataBase: new URL("https://xiana-school.vercel.app"),
+  title: "Xiana Language School",
+  description: "",
+  openGraph: {
+    title: "Xiana Language School",
+    description: "",
+    images: [{ url: "/logo.png", width: 512, height: 512 }],
+  },
+  twitter: {
+    card: "summary",
+    title: "Xiana Language School",
+    images: ["/logo.png"],
+  },
 };
 
 export default function RootLayout({
