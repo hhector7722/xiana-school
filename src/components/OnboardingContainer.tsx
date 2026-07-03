@@ -5,10 +5,9 @@ import { useOnboarding } from '@/hooks/useOnboarding'
 import { WelcomeBlock } from '@/components/blocks/WelcomeBlock'
 import { StepBlock } from '@/components/blocks/StepBlock'
 import { FinalBlock } from '@/components/blocks/FinalBlock'
-import { Skeleton } from '@/components/ui/Skeleton'
 
 type Dir = 'forward' | 'backward'
-type Phase = 'idle' | 'exiting' | 'entering'
+type Phase = 'idle' | 'hero-exiting' | 'hero-entering' | 'sliding'
 
 interface TranState {
   phase: Phase
@@ -19,9 +18,10 @@ interface TranState {
 
 type TranAction =
   | { type: 'INIT'; step: number }
-  | { type: 'START_EXIT'; step: number; dir: Dir }
-  | { type: 'END_EXIT' }
-  | { type: 'END_ENTER' }
+  | { type: 'START_HERO_EXIT'; step: number }
+  | { type: 'START_HERO_ENTER' }
+  | { type: 'START_SLIDE'; step: number; dir: Dir }
+  | { type: 'END_TRANSITION' }
 
 const initialTran: TranState = { phase: 'idle', dir: 'forward', prevStep: 0, displayStep: 0 }
 
@@ -29,23 +29,57 @@ function tranReducer(state: TranState, action: TranAction): TranState {
   switch (action.type) {
     case 'INIT':
       return { phase: 'idle', dir: 'forward', prevStep: action.step, displayStep: action.step }
-    case 'START_EXIT':
-      return { phase: 'exiting', dir: action.dir, prevStep: state.displayStep, displayStep: action.step }
-    case 'END_EXIT':
-      return state.phase === 'exiting' ? { ...state, phase: 'entering' } : state
-    case 'END_ENTER':
-      return state.phase === 'entering' ? { ...state, phase: 'idle' } : state
+    case 'START_HERO_EXIT':
+      return { phase: 'hero-exiting', dir: 'forward', prevStep: state.displayStep, displayStep: action.step }
+    case 'START_HERO_ENTER':
+      return { ...state, phase: 'hero-entering' }
+    case 'START_SLIDE':
+      return { phase: 'sliding', dir: action.dir, prevStep: state.displayStep, displayStep: action.step }
+    case 'END_TRANSITION':
+      return { phase: 'idle', dir: 'forward', prevStep: state.displayStep, displayStep: state.displayStep }
   }
 }
 
-function exitClass(dir: Dir, isFirstCard: boolean): string {
-  if (isFirstCard) return 'animate-hero-exit'
-  return dir === 'forward' ? 'animate-slide-out-left' : 'animate-slide-out-right'
-}
+function renderBlock(
+  step: number,
+  currentBlock: any,
+  data: any,
+  totalSteps: number,
+  handleGoNext: () => void,
+  handleGoBack: () => void,
+  handleAnswer: any,
+  handleTranscript: any,
+  canProceed: boolean,
+  saveStatus: 'idle' | 'saving' | 'saved',
+  handleReset: () => void,
+) {
+  if (step === 0) {
+    return <WelcomeBlock onStart={handleGoNext} />
+  }
 
-function enterClass(dir: Dir, isFirstCard: boolean): string {
-  if (isFirstCard) return 'animate-hero-enter'
-  return dir === 'forward' ? 'animate-slide-in-right' : 'animate-slide-in-left'
+  if (step > 0 && step <= totalSteps && currentBlock) {
+    return (
+      <StepBlock
+        block={currentBlock}
+        stepNumber={step}
+        totalSteps={totalSteps}
+        answers={data.responses[currentBlock.id]?.answers ?? {}}
+        initialTranscript={data.responses[currentBlock.id]?.transcript ?? undefined}
+        onAnswer={handleAnswer}
+        onTranscriptChange={handleTranscript}
+        onNext={handleGoNext}
+        onBack={handleGoBack}
+        canProceed={canProceed}
+        saveStatus={saveStatus}
+      />
+    )
+  }
+
+  if (step > totalSteps) {
+    return <FinalBlock onReset={handleReset} />
+  }
+
+  return null
 }
 
 export function OnboardingContainer() {
@@ -78,14 +112,18 @@ export function OnboardingContainer() {
 
   const startTransition = useCallback((nextStep: number, dir: Dir, onAdvance: () => void) => {
     const isFirstCard = dir === 'forward' && nextStep === 1
-    dispatchTran({ type: 'START_EXIT', step: nextStep, dir })
-    const exitMs = isFirstCard ? 350 : 280
-    const enterMs = isFirstCard ? 450 : 320
-    setTimeout(() => {
+    if (isFirstCard) {
+      dispatchTran({ type: 'START_HERO_EXIT', step: nextStep })
+      setTimeout(() => {
+        onAdvance()
+        dispatchTran({ type: 'START_HERO_ENTER' })
+        setTimeout(() => dispatchTran({ type: 'END_TRANSITION' }), 450)
+      }, 350)
+    } else {
       onAdvance()
-      dispatchTran({ type: 'END_EXIT' })
-      setTimeout(() => dispatchTran({ type: 'END_ENTER' }), enterMs)
-    }, exitMs)
+      dispatchTran({ type: 'START_SLIDE', step: nextStep, dir })
+      setTimeout(() => dispatchTran({ type: 'END_TRANSITION' }), 350)
+    }
   }, [])
 
   const handleAnswer = useCallback(
@@ -143,87 +181,42 @@ export function OnboardingContainer() {
       <main className="flex-1 flex flex-col items-center justify-center px-5 py-8 md:py-12">
         <div className="w-full max-w-2xl mx-auto">
           <div className="bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-6 md:p-10 relative overflow-hidden">
-            {tran.phase === 'exiting' && (
-              <div key={tran.prevStep} className={exitClass(tran.dir, tran.prevStep === 0)}>
-                {tran.prevStep === 0 && (
-                  <WelcomeBlock onStart={handleGoNext} />
-                )}
-
-                {tran.prevStep > 0 && tran.prevStep <= totalSteps && (
-                  <StepBlock
-                    block={currentBlock!}
-                    stepNumber={tran.prevStep}
-                    totalSteps={totalSteps}
-                    answers={data.responses[currentBlock?.id ?? '']?.answers ?? {}}
-                    initialTranscript={data.responses[currentBlock?.id ?? '']?.transcript ?? undefined}
-                    onAnswer={handleAnswer}
-                    onTranscriptChange={handleTranscript}
-                    onNext={handleGoNext}
-                    onBack={handleGoBack}
-                    canProceed={canProceed}
-                    saveStatus={saveStatus}
-                  />
-                )}
-
-                {tran.prevStep > totalSteps && (
-                  <FinalBlock onReset={handleReset} />
-                )}
+            {/* HERO: welcome exiting */}
+            {tran.phase === 'hero-exiting' && (
+              <div key={tran.prevStep} className="animate-hero-exit">
+                {renderBlock(tran.prevStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
               </div>
             )}
 
-            {tran.phase === 'entering' && (
-              <div key={tran.displayStep} className={enterClass(tran.dir, tran.displayStep === 1)}>
-                {tran.displayStep === 0 && (
-                  <WelcomeBlock onStart={handleGoNext} />
-                )}
-
-                {currentBlock && tran.displayStep > 0 && tran.displayStep <= totalSteps && (
-                  <StepBlock
-                    block={currentBlock}
-                    stepNumber={tran.displayStep}
-                    totalSteps={totalSteps}
-                    answers={data.responses[currentBlock.id]?.answers ?? {}}
-                    initialTranscript={data.responses[currentBlock.id]?.transcript ?? undefined}
-                    onAnswer={handleAnswer}
-                    onTranscriptChange={handleTranscript}
-                    onNext={handleGoNext}
-                    onBack={handleGoBack}
-                    canProceed={canProceed}
-                    saveStatus={saveStatus}
-                  />
-                )}
-
-                {tran.displayStep > totalSteps && (
-                  <FinalBlock onReset={handleReset} />
-                )}
+            {/* HERO: first question entering */}
+            {tran.phase === 'hero-entering' && (
+              <div key={tran.displayStep} className="animate-hero-enter">
+                {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
               </div>
             )}
 
+            {/* SLIDING: both cards move simultaneously */}
+            {tran.phase === 'sliding' && (
+              <div className="relative" style={{ minHeight: '200px' }}>
+                <div
+                  key={`exit-${tran.prevStep}`}
+                  className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-out-left' : 'animate-slide-out-right'}`}
+                >
+                  {renderBlock(tran.prevStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+                </div>
+                <div
+                  key={`enter-${tran.displayStep}`}
+                  className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}
+                >
+                  {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+                </div>
+              </div>
+            )}
+
+            {/* IDLE: normal display */}
             {tran.phase === 'idle' && (
               <div key={tran.displayStep}>
-                {tran.displayStep === 0 && (
-                  <WelcomeBlock onStart={handleGoNext} />
-                )}
-
-                {currentBlock && tran.displayStep > 0 && tran.displayStep <= totalSteps && (
-                  <StepBlock
-                    block={currentBlock}
-                    stepNumber={tran.displayStep}
-                    totalSteps={totalSteps}
-                    answers={data.responses[currentBlock.id]?.answers ?? {}}
-                    initialTranscript={data.responses[currentBlock.id]?.transcript ?? undefined}
-                    onAnswer={handleAnswer}
-                    onTranscriptChange={handleTranscript}
-                    onNext={handleGoNext}
-                    onBack={handleGoBack}
-                    canProceed={canProceed}
-                    saveStatus={saveStatus}
-                  />
-                )}
-
-                {tran.displayStep > totalSteps && (
-                  <FinalBlock onReset={handleReset} />
-                )}
+                {renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
               </div>
             )}
           </div>

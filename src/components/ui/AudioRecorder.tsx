@@ -12,9 +12,13 @@ interface AudioRecorderProps {
 const COLS = 100
 
 function VolumeVisualizer({ volume }: { volume: number }) {
+  const volumeRef = useRef(volume)
+  volumeRef.current = volume
+
   const historyRef = useRef<number[]>([])
   const colHeightsRef = useRef<number[]>([])
   const rafRef = useRef<number>(0)
+  const frameCountRef = useRef(0)
   const [tick, setTick] = useState(0)
 
   useEffect(() => {
@@ -22,21 +26,25 @@ function VolumeVisualizer({ volume }: { volume: number }) {
     function frame() {
       if (!running) return
       const h = historyRef.current
-      const decay = 0.92
-      const attack = 0.8
+      const currentVolume = volumeRef.current
+      const raw = currentVolume * (0.5 + 0.5 * Math.random())
       const latest = h.length > 0 ? h[h.length - 1] : 0
-      const raw = volume * (0.6 + 0.4 * Math.random())
+      const attack = currentVolume > latest ? 0.85 : 0.35
       const smoothed = latest + (raw - latest) * attack
       h.push(Math.min(1, smoothed))
       if (h.length > COLS) h.shift()
 
+      const len = h.length
       colHeightsRef.current = h.map((s, i) => {
-        const age = i / Math.max(h.length - 1, 1)
-        const envelope = 0.3 + age * 0.7
-        return Math.max(0.5, s * envelope * 36)
+        const age = i / Math.max(len - 1, 1)
+        const envelope = 0.2 + age * 0.8
+        return Math.max(0, s * envelope * 36)
       })
 
-      setTick((n) => n + 1)
+      frameCountRef.current++
+      if (frameCountRef.current % 2 === 0) {
+        setTick((n) => n + 1)
+      }
       rafRef.current = requestAnimationFrame(frame)
     }
     rafRef.current = requestAnimationFrame(frame)
@@ -44,7 +52,7 @@ function VolumeVisualizer({ volume }: { volume: number }) {
       running = false
       cancelAnimationFrame(rafRef.current)
     }
-  }, [volume])
+  }, [])
 
   const heights = colHeightsRef.current
 
