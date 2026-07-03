@@ -40,7 +40,12 @@ export function StepBlock({
   )
 
   return (
-    <div className="flex flex-col gap-8 py-4 md:py-6">
+    <div className="flex flex-col gap-8 py-4 md:py-6 relative">
+      <img
+        src="/logo.png"
+        alt="Logo"
+        className="absolute top-0 right-0 h-8"
+      />
       <div>
         <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-gray-900 leading-tight">
           {block.title}

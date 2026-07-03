@@ -15,8 +15,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Prepare multipart form for OpenAI Whisper
     const form = new FormData();
-    // Append buffer as a file with explicit filename and MIME type
-    form.append('file', audioBuffer as any, { filename: 'audio.webm', contentType: 'audio/webm' });
+    const audioFile = new File([audioBuffer], 'audio.webm', { type: 'audio/webm' });
+    form.append('file', audioFile);
     form.append('model', 'whisper-1');
 
     const openaiResp = await fetch('https://api.openai.com/v1/audio/transcriptions', {
