@@ -7,31 +7,35 @@ import { StepBlock } from '@/components/blocks/StepBlock'
 import { FinalBlock } from '@/components/blocks/FinalBlock'
 import { Skeleton } from '@/components/ui/Skeleton'
 
-type Phase = 'idle' | 'skeleton' | 'entering'
+type Phase = 'idle' | 'exiting' | 'entering'
 
 interface TranState {
   phase: Phase
+  prevStep: number
   displayStep: number
 }
 
 type TranAction =
   | { type: 'INIT'; step: number }
-  | { type: 'START_TRANSITION'; step: number }
-  | { type: 'END_SKELETON' }
+  | { type: 'START_EXIT'; step: number }
+  | { type: 'END_EXIT' }
   | { type: 'END_ENTER' }
+  | { type: 'SKIP_TO_IDLE'; step: number }
 
-const initialTran: TranState = { phase: 'idle', displayStep: 0 }
+const initialTran: TranState = { phase: 'idle', prevStep: 0, displayStep: 0 }
 
 function tranReducer(state: TranState, action: TranAction): TranState {
   switch (action.type) {
     case 'INIT':
-      return { phase: 'idle', displayStep: action.step }
-    case 'START_TRANSITION':
-      return { phase: 'skeleton', displayStep: action.step }
-    case 'END_SKELETON':
-      return state.phase === 'skeleton' ? { ...state, phase: 'entering' } : state
+      return { phase: 'idle', prevStep: action.step, displayStep: action.step }
+    case 'START_EXIT':
+      return { phase: 'exiting', prevStep: state.displayStep, displayStep: action.step }
+    case 'END_EXIT':
+      return state.phase === 'exiting' ? { ...state, phase: 'entering' } : state
     case 'END_ENTER':
       return state.phase === 'entering' ? { ...state, phase: 'idle' } : state
+    case 'SKIP_TO_IDLE':
+      return { phase: 'idle', prevStep: action.step, displayStep: action.step }
   }
 }
 
@@ -64,11 +68,11 @@ export function OnboardingContainer() {
   }, [currentStep, loading])
 
   const startTransition = useCallback((nextStep: number) => {
-    dispatchTran({ type: 'START_TRANSITION', step: nextStep })
+    dispatchTran({ type: 'START_EXIT', step: nextStep })
     setTimeout(() => {
-      dispatchTran({ type: 'END_SKELETON' })
-      setTimeout(() => dispatchTran({ type: 'END_ENTER' }), 250)
-    }, 150)
+      dispatchTran({ type: 'END_EXIT' })
+      setTimeout(() => dispatchTran({ type: 'END_ENTER' }), 350)
+    }, 250)
   }, [])
 
   const handleAnswer = useCallback(
@@ -129,16 +133,45 @@ export function OnboardingContainer() {
     <div className="bg-page min-h-screen flex flex-col">
       <main className="flex-1 flex flex-col items-center justify-center px-5 py-8 md:py-12">
         <div className="w-full max-w-2xl mx-auto">
-          <div className="bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-6 md:p-10">
-            {tran.phase === 'skeleton' ? (
-              <div className="animate-fade-in">
-                <Skeleton />
+          <div className="bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-6 md:p-10 relative overflow-hidden">
+            {tran.phase === 'exiting' && (
+              <div key={tran.prevStep} className="animate-scale-out">
+                {tran.prevStep === 0 && (
+                  <WelcomeBlock onStart={handleGoNext} />
+                )}
               </div>
-            ) : (
-              <div
-                key={tran.displayStep}
-                className={tran.phase === 'entering' ? 'animate-fade-in' : ''}
-              >
+            )}
+
+            {tran.phase === 'entering' && (
+              <div key={tran.displayStep} className="animate-slide-up">
+                {tran.displayStep === 0 && (
+                  <WelcomeBlock onStart={handleGoNext} />
+                )}
+
+                {currentBlock && tran.displayStep > 0 && tran.displayStep <= totalSteps && (
+                  <StepBlock
+                    block={currentBlock}
+                    stepNumber={tran.displayStep}
+                    totalSteps={totalSteps}
+                    answers={data.responses[currentBlock.id]?.answers ?? {}}
+                    initialTranscript={data.responses[currentBlock.id]?.transcript ?? undefined}
+                    onAnswer={handleAnswer}
+                    onTranscriptChange={handleTranscript}
+                    onNext={handleGoNext}
+                    onBack={handleGoBack}
+                    canProceed={canProceed}
+                    saveStatus={saveStatus}
+                  />
+                )}
+
+                {tran.displayStep > totalSteps && (
+                  <FinalBlock onReset={handleReset} />
+                )}
+              </div>
+            )}
+
+            {tran.phase === 'idle' && (
+              <div key={tran.displayStep}>
                 {tran.displayStep === 0 && (
                   <WelcomeBlock onStart={handleGoNext} />
                 )}

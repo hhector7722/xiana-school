@@ -12,6 +12,8 @@ html {
   --color-page: #6558F5;
   --animate-fade-in: fade-in 0.25s ease-out;
   --animate-skeleton: skeleton-pulse 1.5s ease-in-out infinite;
+  --animate-scale-out: scale-out 0.25s cubic-bezier(0.4, 0, 0.2, 1) both;
+  --animate-slide-up: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes fade-in {
@@ -31,5 +33,27 @@ html {
   }
   50% {
     opacity: 0.5;
+  }
+}
+
+@keyframes scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateY(-8px);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
