@@ -18,21 +18,21 @@ function VolumeVisualizer({ volume }: { volume: number }) {
   }
 
   return (
-    <div className="flex items-center gap-[1.5px] h-9">
+    <div className="flex items-center justify-between gap-0 h-9 w-full">
       {barsRef.current.map((seed, i) => {
-        const variation = 0.3 + 0.7 * seed
+        const variation = 0.2 + 0.8 * seed
         const center = (i - BAR_COUNT / 2) / (BAR_COUNT / 2)
-        const envelope = 1 - Math.abs(center) * 0.4
+        const envelope = 1 - Math.abs(center) * 0.5
         const raw = envelope * variation * volume
-        const height = 3 + raw * 32
+        const height = raw * 36
         return (
           <div
             key={i}
             className="w-[2px] rounded-full bg-accent"
             style={{
-              height: `${Math.max(3, height)}px`,
-              transition: 'height 50ms ease',
-              opacity: 0.4 + volume * 0.6,
+              height: `${Math.max(0, height)}px`,
+              transition: 'height 40ms ease',
+              opacity: Math.min(1, 0.15 + volume * 0.85),
             }}
           />
         )
@@ -160,7 +160,7 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
             {formatTime(elapsed)}
           </span>
 
-          <div className="flex-1 flex items-center justify-center min-w-0">
+          <div className="flex-1 flex items-center min-w-0 overflow-hidden">
             <VolumeVisualizer volume={volume} />
           </div>
 
