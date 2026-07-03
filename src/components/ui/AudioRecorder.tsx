@@ -9,30 +9,57 @@ interface AudioRecorderProps {
   onTranscriptChange: (transcript: string) => void
 }
 
-const BAR_COUNT = 20
+const COLS = 100
 
 function VolumeVisualizer({ volume }: { volume: number }) {
-  const barsRef = useRef<number[]>([])
-  if (barsRef.current.length !== BAR_COUNT) {
-    barsRef.current = Array.from({ length: BAR_COUNT }, () => Math.random())
-  }
+  const historyRef = useRef<number[]>([])
+  const colHeightsRef = useRef<number[]>([])
+  const rafRef = useRef<number>(0)
+  const [tick, setTick] = useState(0)
+
+  useEffect(() => {
+    let running = true
+    function frame() {
+      if (!running) return
+      const h = historyRef.current
+      const decay = 0.92
+      const attack = 0.8
+      const latest = h.length > 0 ? h[h.length - 1] : 0
+      const raw = volume * (0.6 + 0.4 * Math.random())
+      const smoothed = latest + (raw - latest) * attack
+      h.push(Math.min(1, smoothed))
+      if (h.length > COLS) h.shift()
+
+      colHeightsRef.current = h.map((s, i) => {
+        const age = i / Math.max(h.length - 1, 1)
+        const envelope = 0.3 + age * 0.7
+        return Math.max(0.5, s * envelope * 36)
+      })
+
+      setTick((n) => n + 1)
+      rafRef.current = requestAnimationFrame(frame)
+    }
+    rafRef.current = requestAnimationFrame(frame)
+    return () => {
+      running = false
+      cancelAnimationFrame(rafRef.current)
+    }
+  }, [volume])
+
+  const heights = colHeightsRef.current
 
   return (
-    <div className="flex items-center justify-between gap-0 h-9 w-full">
-      {barsRef.current.map((seed, i) => {
-        const variation = 0.2 + 0.8 * seed
-        const center = (i - BAR_COUNT / 2) / (BAR_COUNT / 2)
-        const envelope = 1 - Math.abs(center) * 0.5
-        const raw = envelope * variation * volume
-        const height = raw * 36
+    <div className="flex items-end h-9 w-full gap-0">
+      {heights.map((h, i) => {
+        const age = i / Math.max(heights.length - 1, 1)
         return (
           <div
             key={i}
-            className="w-[2px] rounded-full bg-accent"
+            className="w-[2px] rounded-t-[1px] bg-accent/80"
             style={{
-              height: `${Math.max(0, height)}px`,
-              transition: 'height 40ms ease',
-              opacity: Math.min(1, 0.15 + volume * 0.85),
+              height: `${h}px`,
+              opacity: 0.3 + age * 0.7,
+              transition: 'height 20ms linear',
             }}
           />
         )
