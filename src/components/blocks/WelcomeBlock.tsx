@@ -19,7 +19,7 @@ export function WelcomeBlock({ onStart }: WelcomeBlockProps) {
       </h1>
 
       <p className="text-base sm:text-lg text-gray-500 leading-relaxed mb-3 max-w-md">
-        Analicemos tus procesos actuales. Estas preguntas me ayudarán a identificar puntos de fricción y determinar qué soluciones tecnológicas pueden potenciar tu eficiencia.
+        Analicemos tus procesos actuales y identifiquemos los puntos de fricción en tu día a día.
       </p>
 
       <p className="text-sm text-gray-400 leading-relaxed mb-10">

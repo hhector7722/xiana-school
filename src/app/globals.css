@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+html {
+  touch-action: pan-y;
+}
+
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --color-accent: #6558F5;

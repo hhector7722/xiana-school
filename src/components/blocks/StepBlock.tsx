@@ -55,6 +55,8 @@ export function StepBlock({
         </p>
       </div>
 
+      <hr className="border-t border-gray-100 mx-2" />
+
       <div className="space-y-4">
         {block.questions.map((q) => (
           <div key={q.id} className="space-y-2">
