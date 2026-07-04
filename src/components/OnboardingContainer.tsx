@@ -116,7 +116,7 @@ export function OnboardingContainer() {
     } else {
       onAdvance()
       dispatchTran({ type: 'START_SLIDE', step: nextStep, dir })
-      setTimeout(() => dispatchTran({ type: 'END_TRANSITION' }), 420)
+      setTimeout(() => dispatchTran({ type: 'END_TRANSITION' }), 500)
     }
   }, [])
 
@@ -176,11 +176,13 @@ export function OnboardingContainer() {
     </div>
   )
 
+  const isWelcome = tran.displayStep === 0 && tran.phase === 'idle';
+
   return (
     <div className="bg-page min-h-dvh flex flex-col">
       <main className="flex-1 flex flex-col px-4 pt-3 pb-5 md:pt-6 md:pb-8">
-        <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col">
-          <div className="bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex-1 flex flex-col p-4 md:p-6 relative overflow-hidden">
+        <div className={`w-full mx-auto flex flex-col transition-all duration-500 ease-out ${isWelcome ? 'max-w-lg justify-center flex-1' : 'max-w-2xl flex-1'}`}>
+          <div className={`bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col relative overflow-hidden transition-all duration-500 ease-out ${isWelcome ? '' : 'flex-1 p-4 md:p-6'}`}>
 
             {/* HERO: welcome → first question */}
             {tran.phase === 'hero-transition' && (
@@ -208,7 +210,7 @@ export function OnboardingContainer() {
                 </div>
                 <div
                   className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}
-                  style={{ animationDelay: '0.08s' }}
+                  style={{ animationDelay: '0.04s' }}
                 >
                   <div className="h-full flex flex-col">
                     {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}

@@ -8,7 +8,7 @@ interface WelcomeBlockProps {
 
 export function WelcomeBlock({ onStart }: WelcomeBlockProps) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center py-6 md:py-8">
+    <div className="flex flex-col items-center justify-center px-6 py-10 md:px-10 md:py-12">
       <img
         src="/logo.png"
         alt="Logo"
