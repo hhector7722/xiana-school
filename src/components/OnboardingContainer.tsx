@@ -185,7 +185,7 @@ export function OnboardingContainer() {
 
         {/* WELCOME: card adjusts to content, centered */}
         {isWelcomeOnScreen ? (
-          <div className="w-full max-w-2xl mx-auto flex items-center justify-center">
+          <div className="w-full max-w-2xl mx-auto flex-1 flex items-center justify-center">
             <div className={`bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4 md:p-6 ${tran.phase === 'hero-exiting' ? 'animate-hero-exit' : ''}`}>
               <WelcomeBlock onStart={handleGoNext} />
             </div>

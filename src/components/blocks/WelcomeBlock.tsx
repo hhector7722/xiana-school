@@ -18,11 +18,11 @@ export function WelcomeBlock({ onStart }: WelcomeBlockProps) {
         Hola, Julia
       </h1>
 
-      <div className="text-sm sm:text-base text-gray-500 leading-relaxed mb-6 w-full text-left space-y-1">
-        <p>Analicemos cómo trabajas actualmente,</p>
-        <p>qué herramientas utilizas,</p>
-        <p>cómo las utilizas</p>
-        <p>e identifiquemos los principales puntos de fricción de tu día a día.</p>
+      <div className="text-sm sm:text-base text-gray-500 leading-relaxed mb-6 w-full text-left pl-5 space-y-1">
+        <p>Me gustaría conocerte un poco mejor para entender qué necesitas realmente.</p>
+        <p>Solo así podré valorar si puedo ayudarte y de qué manera.</p>
+        <p>No hay respuestas correctas o incorrectas. Simplemente responde con naturalidad.</p>
+        <p>Será rápido.</p>
       </div>
 
       <Button onClick={onStart} className="min-w-[120px]" aria-label="Comenzar el cuestionario">
