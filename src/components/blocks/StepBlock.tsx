@@ -31,46 +31,42 @@ const config: Record<Density, {
   subtitle: string
   questionText: string
   logo: string
-  hr: string
   buttonPt: string
   buttonSize: 'sm' | 'md'
   recorderCompact: boolean
 }> = {
   spacious: {
     gap: 'gap-5',
-    questionGap: 'space-y-3',
+    questionGap: 'space-y-4',
     questionItemGap: 'space-y-2',
     title: 'text-xl sm:text-2xl',
     subtitle: 'text-xs sm:text-sm',
     questionText: 'text-sm sm:text-base',
     logo: 'h-8 sm:h-9',
-    hr: 'mt-0.5 mb-0.5',
     buttonPt: 'pt-1',
     buttonSize: 'md',
     recorderCompact: false,
   },
   normal: {
     gap: 'gap-3',
-    questionGap: 'space-y-2.5',
+    questionGap: 'space-y-3',
     questionItemGap: 'space-y-1.5',
     title: 'text-xl sm:text-2xl',
     subtitle: 'text-xs sm:text-sm',
     questionText: 'text-sm sm:text-base',
     logo: 'h-8 sm:h-9',
-    hr: '',
     buttonPt: 'pt-0.5',
     buttonSize: 'md',
     recorderCompact: false,
   },
   compact: {
     gap: 'gap-1.5',
-    questionGap: 'space-y-1.5',
+    questionGap: 'space-y-2',
     questionItemGap: 'space-y-1',
     title: 'text-lg sm:text-xl',
     subtitle: 'text-[11px] sm:text-xs',
     questionText: 'text-xs sm:text-sm',
     logo: 'h-7 sm:h-8',
-    hr: 'my-0',
     buttonPt: 'pt-0',
     buttonSize: 'sm',
     recorderCompact: true,
@@ -104,25 +100,27 @@ export function StepBlock({
       ref={rootRef}
       className={`flex-1 flex flex-col justify-between ${c.gap} relative`}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          <h2 className={`${c.title} font-medium tracking-tight text-gray-900 leading-tight`}>
-            {block.title}
-          </h2>
-          {block.subtitle && (
-            <p className={`${c.subtitle} text-gray-500 leading-relaxed mt-0.5`}>
-              {block.subtitle}
-            </p>
-          )}
+      <div>
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <h2 className={`${c.title} font-medium tracking-tight text-gray-900 leading-tight`}>
+              {block.title}
+            </h2>
+            {block.subtitle && (
+              <p className={`${c.subtitle} text-gray-500 leading-relaxed mt-0.5`}>
+                {block.subtitle}
+              </p>
+            )}
+          </div>
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className={`${c.logo} ml-3 shrink-0`}
+          />
         </div>
-        <img
-          src="/logo.png"
-          alt="Logo"
-          className={`${c.logo} ml-3 shrink-0`}
-        />
-      </div>
 
-      <hr className={`border-t border-gray-100 ${c.hr}`} />
+        <hr className="border-t border-gray-100 mt-0.5" />
+      </div>
 
       <div className={c.questionGap}>
         {block.questions.map((q) => (
