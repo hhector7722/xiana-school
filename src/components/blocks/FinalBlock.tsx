@@ -8,7 +8,7 @@ interface FinalBlockProps {
 
 export function FinalBlock({ onReset }: FinalBlockProps) {
   return (
-    <div className="flex flex-col items-center text-center py-6 md:py-8">
+    <div className="flex-1 flex flex-col items-center text-center justify-center py-6 md:py-8">
       <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-3">
         <svg
           width="18"

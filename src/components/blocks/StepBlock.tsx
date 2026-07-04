@@ -23,46 +23,58 @@ interface StepBlockProps {
   saveStatus?: 'idle' | 'saving' | 'saved'
 }
 
-const compactGaps: Record<string, string> = {
-  spacious: 'gap-3',
-  normal: 'gap-3',
-  compact: 'gap-1.5',
-}
-
-const compactQuestionGap: Record<string, string> = {
-  spacious: 'space-y-3',
-  normal: 'space-y-2.5',
-  compact: 'space-y-1.5',
-}
-
-const compactQuestionItemGap: Record<string, string> = {
-  spacious: 'space-y-2',
-  normal: 'space-y-1.5',
-  compact: 'space-y-1',
-}
-
-const compactTitle: Record<string, string> = {
-  spacious: 'text-xl sm:text-2xl',
-  normal: 'text-xl sm:text-2xl',
-  compact: 'text-lg sm:text-xl',
-}
-
-const compactSubtitle: Record<string, string> = {
-  spacious: 'text-xs sm:text-sm',
-  normal: 'text-xs sm:text-sm',
-  compact: 'text-[11px] sm:text-xs',
-}
-
-const compactQuestionText: Record<string, string> = {
-  spacious: 'text-sm sm:text-base',
-  normal: 'text-sm sm:text-base',
-  compact: 'text-xs sm:text-sm',
-}
-
-const compactButtonPt: Record<string, string> = {
-  spacious: 'pt-3',
-  normal: 'pt-1.5',
-  compact: 'pt-1',
+const config: Record<Density, {
+  gap: string
+  questionGap: string
+  questionItemGap: string
+  title: string
+  subtitle: string
+  questionText: string
+  logo: string
+  hr: string
+  buttonPt: string
+  buttonSize: 'sm' | 'md'
+  recorderCompact: boolean
+}> = {
+  spacious: {
+    gap: 'gap-5',
+    questionGap: 'space-y-3',
+    questionItemGap: 'space-y-2',
+    title: 'text-xl sm:text-2xl',
+    subtitle: 'text-xs sm:text-sm',
+    questionText: 'text-sm sm:text-base',
+    logo: 'h-8 sm:h-9',
+    hr: 'mt-0.5 mb-0.5',
+    buttonPt: 'pt-1',
+    buttonSize: 'md',
+    recorderCompact: false,
+  },
+  normal: {
+    gap: 'gap-3',
+    questionGap: 'space-y-2.5',
+    questionItemGap: 'space-y-1.5',
+    title: 'text-xl sm:text-2xl',
+    subtitle: 'text-xs sm:text-sm',
+    questionText: 'text-sm sm:text-base',
+    logo: 'h-8 sm:h-9',
+    hr: '',
+    buttonPt: 'pt-0.5',
+    buttonSize: 'md',
+    recorderCompact: false,
+  },
+  compact: {
+    gap: 'gap-1.5',
+    questionGap: 'space-y-1.5',
+    questionItemGap: 'space-y-1',
+    title: 'text-lg sm:text-xl',
+    subtitle: 'text-[11px] sm:text-xs',
+    questionText: 'text-xs sm:text-sm',
+    logo: 'h-7 sm:h-8',
+    hr: 'my-0',
+    buttonPt: 'pt-0',
+    buttonSize: 'sm',
+    recorderCompact: true,
+  },
 }
 
 export function StepBlock({
@@ -80,35 +92,25 @@ export function StepBlock({
 }: StepBlockProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const density: Density = useDensity(rootRef, [block.id, answers, initialTranscript])
-  const isCompact = density === 'compact'
-  const isSpacious = density === 'spacious'
+  const c = config[density]
 
   const handleTranscriptChange = useCallback(
     (transcript: string) => onTranscriptChange(transcript),
     [onTranscriptChange],
   )
 
-  const gapClass = compactGaps[density]
-  const questionGapClass = compactQuestionGap[density]
-  const questionItemGapClass = compactQuestionItemGap[density]
-  const titleClass = compactTitle[density]
-  const subtitleClass = compactSubtitle[density]
-  const questionTextClass = compactQuestionText[density]
-  const buttonPtClass = compactButtonPt[density]
-
   return (
     <div
       ref={rootRef}
-      className={`flex flex-col ${gapClass} py-2 relative`}
-      style={{ minHeight: isSpacious ? 'calc(100dvh - 56px)' : undefined }}
+      className={`flex-1 flex flex-col justify-between ${c.gap} relative`}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <h2 className={`${titleClass} font-medium tracking-tight text-gray-900 leading-tight`}>
+          <h2 className={`${c.title} font-medium tracking-tight text-gray-900 leading-tight`}>
             {block.title}
           </h2>
           {block.subtitle && (
-            <p className={`${subtitleClass} text-gray-500 leading-relaxed mt-0.5`}>
+            <p className={`${c.subtitle} text-gray-500 leading-relaxed mt-0.5`}>
               {block.subtitle}
             </p>
           )}
@@ -116,16 +118,16 @@ export function StepBlock({
         <img
           src="/logo.png"
           alt="Logo"
-          className="h-8 sm:h-9 ml-3 shrink-0"
+          className={`${c.logo} ml-3 shrink-0`}
         />
       </div>
 
-      <hr className="border-t border-gray-100" />
+      <hr className={`border-t border-gray-100 ${c.hr}`} />
 
-      <div className={`${questionGapClass} ${isSpacious ? 'flex-1 flex flex-col justify-center' : ''}`}>
+      <div className={c.questionGap}>
         {block.questions.map((q) => (
-          <div key={q.id} className={questionItemGapClass}>
-            <p className={`${questionTextClass} font-semibold text-gray-900 leading-snug`}>{q.text}</p>
+          <div key={q.id} className={c.questionItemGap}>
+            <p className={`${c.questionText} font-semibold text-gray-900 leading-snug`}>{q.text}</p>
             <YesNoToggle
               value={answers[q.id] ?? null}
               onChange={(v) => onAnswer(q.id, v)}
@@ -138,16 +140,16 @@ export function StepBlock({
         question={block.audioPrompt}
         initialTranscript={initialTranscript}
         onTranscriptChange={handleTranscriptChange}
-        compact={isCompact}
+        compact={c.recorderCompact}
       />
 
       <ProgressBar current={stepNumber} total={totalSteps} />
 
-      <div className={`flex items-center justify-between ${buttonPtClass}`}>
+      <div className={`flex items-center justify-between ${c.buttonPt}`}>
         <Button
           variant="secondary"
           onClick={onBack}
-          size={isCompact ? 'sm' : undefined}
+          size={c.buttonSize}
         >
           Atrás
         </Button>
@@ -181,7 +183,7 @@ export function StepBlock({
             onClick={onNext}
             disabled={!canProceed || saveStatus !== 'idle'}
             aria-label="Continuar al siguiente paso"
-            size={isCompact ? 'sm' : undefined}
+            size={c.buttonSize}
           >
             Continuar
           </Button>

@@ -4,21 +4,22 @@ import { useState, useLayoutEffect, RefObject } from 'react'
 
 export type Density = 'spacious' | 'normal' | 'compact'
 
-const VERTICAL_MARGIN = 56
-
 export function useDensity(ref: RefObject<HTMLDivElement | null>, deps: any[]): Density {
-  const [density, setDensity] = useState<Density>('normal')
+  const [density, setDensity] = useState<Density>('spacious')
 
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
 
-    const available = window.innerHeight - VERTICAL_MARGIN
-    const contentHeight = el.scrollHeight
+    const avail = el.clientHeight
 
-    if (contentHeight <= available * 0.7) {
+    if (avail <= 0) return
+
+    const overflow = el.scrollHeight - avail
+
+    if (overflow <= 0) {
       setDensity('spacious')
-    } else if (contentHeight <= available) {
+    } else if (overflow <= 48) {
       setDensity('normal')
     } else {
       setDensity('compact')

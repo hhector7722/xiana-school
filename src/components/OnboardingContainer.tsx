@@ -178,47 +178,53 @@ export function OnboardingContainer() {
 
   return (
     <div className="bg-page min-h-screen flex flex-col">
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-3 md:py-6">
-        <div className="w-full max-w-2xl mx-auto">
-          <div className="bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4 md:p-6 relative overflow-hidden">
+      <main className="flex-1 flex flex-col px-4 py-3 md:py-6">
+        <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col">
+          <div className="bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex-1 flex flex-col p-4 md:p-6 relative overflow-hidden">
+
             {/* HERO: welcome exiting */}
             {tran.phase === 'hero-exiting' && (
-              <div key={tran.prevStep} className="animate-hero-exit">
+              <div key={tran.prevStep} className="animate-hero-exit flex-1 flex flex-col">
                 {renderBlock(tran.prevStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
               </div>
             )}
 
             {/* HERO: first question entering */}
             {tran.phase === 'hero-entering' && (
-              <div key={tran.displayStep} className="animate-hero-enter">
+              <div key={tran.displayStep} className="animate-hero-enter flex-1 flex flex-col">
                 {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
               </div>
             )}
 
             {/* SLIDING: both cards move simultaneously */}
             {tran.phase === 'sliding' && (
-              <div className="relative" style={{ minHeight: '200px' }}>
+              <>
                 <div
                   key={`exit-${tran.prevStep}`}
                   className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-out-left' : 'animate-slide-out-right'}`}
                 >
-                  {renderBlock(tran.prevStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+                  <div className="h-full flex flex-col">
+                    {renderBlock(tran.prevStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+                  </div>
                 </div>
                 <div
                   key={`enter-${tran.displayStep}`}
                   className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}
                 >
-                  {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+                  <div className="h-full flex flex-col">
+                    {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+                  </div>
                 </div>
-              </div>
+              </>
             )}
 
             {/* IDLE: normal display */}
             {tran.phase === 'idle' && (
-              <div key={tran.displayStep}>
+              <div key={tran.displayStep} className="flex-1 flex flex-col">
                 {renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
               </div>
             )}
+
           </div>
         </div>
       </main>
