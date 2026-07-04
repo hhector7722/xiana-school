@@ -54,7 +54,7 @@ export function FinalBlock({ onReset }: FinalBlockProps) {
         Perfecto.
       </h2>
 
-      <div className="text-sm sm:text-base text-gray-500 leading-relaxed mb-6 w-full text-left pl-5 space-y-2 max-w-md">
+      <div className="text-sm sm:text-base text-gray-500 leading-relaxed mb-6 w-full text-center space-y-2 max-w-md">
         <p>Muchas gracias por tu tiempo.</p>
         <p>En unos días contactaré contigo.</p>
       </div>

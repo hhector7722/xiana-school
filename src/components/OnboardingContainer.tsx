@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { useOnboarding } from '@/hooks/useOnboarding'
 import { WelcomeBlock } from '@/components/blocks/WelcomeBlock'
 import { StepBlock } from '@/components/blocks/StepBlock'
@@ -65,6 +65,13 @@ export function OnboardingContainer() {
 
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [videoState, setVideoState] = useState<'idle' | 'showing' | 'hiding'>('idle')
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    if (videoState === 'showing' && videoRef.current) {
+      videoRef.current.play().catch(console.error)
+    }
+  }, [videoState])
   
   // Clean transition state
   const [displayStep, setDisplayStep] = useState(0)
@@ -101,6 +108,18 @@ export function OnboardingContainer() {
     [currentBlock, setTranscript],
   )
 
+  const handleVideoEnd = useCallback(() => {
+    setVideoState('hiding')
+    setTimeout(() => {
+      setVideoState('idle')
+      setSaveStatus('saved')
+      setTimeout(() => {
+        setSaveStatus('idle')
+        changeStep(currentStep + 1, goNext)
+      }, 200)
+    }, 500)
+  }, [changeStep, currentStep, goNext])
+
   const handleGoNext = useCallback(() => {
     if (!canProceed || saveStatus !== 'idle' || videoState !== 'idle') return
 
@@ -109,17 +128,6 @@ export function OnboardingContainer() {
 
     if (isSubmitting) {
       setVideoState('showing')
-      setTimeout(() => {
-        setVideoState('hiding')
-        setTimeout(() => {
-          setVideoState('idle')
-          setSaveStatus('saved')
-          setTimeout(() => {
-            setSaveStatus('idle')
-            changeStep(currentStep + 1, goNext)
-          }, 200)
-        }, 500)
-      }, 2500)
     } else if (isWelcome) {
       changeStep(1, goNext)
     } else {
@@ -174,14 +182,15 @@ export function OnboardingContainer() {
 
         {/* Video Overlay */}
         {videoState !== 'idle' && (
-          <div className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-500 ease-in-out ${videoState === 'showing' ? 'opacity-100 bg-page/80 backdrop-blur-sm' : 'opacity-0 bg-transparent'}`}>
-            <div className={`w-56 h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-transform duration-500 ease-out ${videoState === 'showing' ? 'scale-100' : 'scale-90'}`}>
+          <div className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-all duration-500 ease-in-out bg-black/40 backdrop-blur-sm ${videoState === 'showing' ? 'opacity-100' : 'opacity-0'}`}>
+            <div className={`w-[90vw] max-w-sm md:max-w-md rounded-2xl overflow-hidden shadow-2xl transition-transform duration-500 ease-out pointer-events-auto bg-black flex items-center justify-center ${videoState === 'showing' ? 'scale-100' : 'scale-90'}`}>
               <video 
+                ref={videoRef}
                 src="/hernan.mp4" 
                 autoPlay 
-                muted 
                 playsInline 
-                className="w-full h-full object-cover"
+                onEnded={handleVideoEnd}
+                className="w-full h-auto max-h-[80vh] object-contain"
               />
             </div>
           </div>
