@@ -167,7 +167,7 @@ export function OnboardingContainer() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-page">
+      <div className="flex items-center justify-center min-h-dvh bg-page">
         <div className="flex items-center gap-3 text-sm text-gray-400" role="status" aria-label="Cargando">
           <span className="w-4 h-4 rounded-full border-2 border-[#ECECEC] border-t-accent animate-spin" />
           Cargando…
@@ -176,57 +176,65 @@ export function OnboardingContainer() {
     )
   }
 
+  const isWelcomeOnScreen = (tran.phase === 'idle' && tran.displayStep === 0) ||
+                            tran.phase === 'hero-exiting'
+
   return (
-    <div className="bg-page min-h-screen flex flex-col">
-      <main className="flex-1 flex flex-col px-4 py-3 md:py-6">
-        <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col">
-          <div className="bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex-1 flex flex-col p-4 md:p-6 relative overflow-hidden">
+    <div className="bg-page min-h-dvh flex flex-col">
+      <main className="flex-1 flex flex-col px-4 pt-3 pb-5 md:pt-6 md:pb-8">
 
-            {/* HERO: welcome exiting */}
-            {tran.phase === 'hero-exiting' && (
-              <div key={tran.prevStep} className="animate-hero-exit flex-1 flex flex-col">
-                {renderBlock(tran.prevStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
-              </div>
-            )}
-
-            {/* HERO: first question entering */}
-            {tran.phase === 'hero-entering' && (
-              <div key={tran.displayStep} className="animate-hero-enter flex-1 flex flex-col">
-                {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
-              </div>
-            )}
-
-            {/* SLIDING: both cards move simultaneously */}
-            {tran.phase === 'sliding' && (
-              <>
-                <div
-                  key={`exit-${tran.prevStep}`}
-                  className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-out-left' : 'animate-slide-out-right'}`}
-                >
-                  <div className="h-full flex flex-col">
-                    {renderBlock(tran.prevStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
-                  </div>
-                </div>
-                <div
-                  key={`enter-${tran.displayStep}`}
-                  className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}
-                >
-                  <div className="h-full flex flex-col">
-                    {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* IDLE: normal display */}
-            {tran.phase === 'idle' && (
-              <div key={tran.displayStep} className="flex-1 flex flex-col">
-                {renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
-              </div>
-            )}
-
+        {/* WELCOME: card adjusts to content, centered */}
+        {isWelcomeOnScreen ? (
+          <div className="w-full max-w-2xl mx-auto flex items-center justify-center">
+            <div className={`bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] p-4 md:p-6 ${tran.phase === 'hero-exiting' ? 'animate-hero-exit' : ''}`}>
+              <WelcomeBlock onStart={handleGoNext} />
+            </div>
           </div>
-        </div>
+        ) : (
+          /* QUESTIONS / FINAL: full-height card */
+          <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col">
+            <div className="bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex-1 flex flex-col p-4 md:p-6 relative overflow-hidden">
+
+              {/* HERO: first question entering */}
+              {tran.phase === 'hero-entering' && (
+                <div key={tran.displayStep} className="animate-hero-enter flex-1 flex flex-col">
+                  {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+                </div>
+              )}
+
+              {/* SLIDING: both cards move simultaneously */}
+              {tran.phase === 'sliding' && (
+                <>
+                  <div
+                    key={`exit-${tran.prevStep}`}
+                    className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-out-left' : 'animate-slide-out-right'}`}
+                  >
+                    <div className="h-full flex flex-col">
+                      {renderBlock(tran.prevStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+                    </div>
+                  </div>
+                  <div
+                    key={`enter-${tran.displayStep}`}
+                    className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}
+                  >
+                    <div className="h-full flex flex-col">
+                      {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* IDLE: normal display */}
+              {tran.phase === 'idle' && (
+                <div key={tran.displayStep} className="flex-1 flex flex-col">
+                  {renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+                </div>
+              )}
+
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   )
