@@ -176,13 +176,13 @@ export function OnboardingContainer() {
     </div>
   )
 
-  const isWelcome = tran.displayStep === 0 && tran.phase === 'idle';
+  const isWelcomeView = tran.displayStep === 0 && tran.phase === 'idle';
 
   return (
     <div className="bg-page min-h-dvh flex flex-col">
       <main className="flex-1 flex flex-col px-4 pt-3 pb-5 md:pt-6 md:pb-8">
-        <div className={`w-full mx-auto flex flex-col transition-all duration-500 ease-out ${isWelcome ? 'max-w-lg justify-center flex-1' : 'max-w-2xl flex-1'}`}>
-          <div className={`bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col relative overflow-hidden transition-all duration-500 ease-out ${isWelcome ? '' : 'flex-1 p-4 md:p-6'}`}>
+        <div className={`w-full mx-auto flex flex-col transition-all duration-500 ease-out ${isWelcomeView ? 'max-w-lg justify-center flex-1' : 'max-w-2xl flex-1'}`}>
+          <div className={`bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col relative overflow-hidden transition-all duration-500 ease-out ${isWelcomeView ? '' : 'flex-1 p-4 md:p-6'}`}>
 
             {/* HERO: welcome → first question */}
             {tran.phase === 'hero-transition' && (
