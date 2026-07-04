@@ -12,12 +12,6 @@ html {
   --color-page: #6558F5;
   --animate-fade-in: fade-in 0.25s ease-out;
   --animate-skeleton: skeleton-pulse 1.5s ease-in-out infinite;
-  --animate-hero-exit: hero-exit 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
-  --animate-hero-enter: hero-enter 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
-  --animate-slide-out-left: crossfade-out 0.4s ease-in-out both;
-  --animate-slide-out-right: crossfade-out 0.4s ease-in-out both;
-  --animate-slide-in-right: crossfade-in 0.4s ease-in-out both;
-  --animate-slide-in-left: crossfade-in 0.4s ease-in-out both;
 }
 
 @keyframes fade-in {
@@ -28,24 +22,4 @@ html {
 @keyframes skeleton-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
-}
-
-@keyframes hero-exit {
-  from { opacity: 1; transform: scale(1) translateY(0); }
-  to { opacity: 0; transform: scale(0.95) translateY(-12px); }
-}
-
-@keyframes hero-enter {
-  from { opacity: 0; transform: translateY(20px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes crossfade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes crossfade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }

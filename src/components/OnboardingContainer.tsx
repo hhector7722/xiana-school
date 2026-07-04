@@ -1,41 +1,10 @@
 'use client'
 
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useOnboarding } from '@/hooks/useOnboarding'
 import { WelcomeBlock } from '@/components/blocks/WelcomeBlock'
 import { StepBlock } from '@/components/blocks/StepBlock'
 import { FinalBlock } from '@/components/blocks/FinalBlock'
-
-type Dir = 'forward' | 'backward'
-type Phase = 'idle' | 'hero-transition' | 'sliding'
-
-interface TranState {
-  phase: Phase
-  dir: Dir
-  prevStep: number
-  displayStep: number
-}
-
-type TranAction =
-  | { type: 'INIT'; step: number }
-  | { type: 'START_HERO'; step: number }
-  | { type: 'START_SLIDE'; step: number; dir: Dir }
-  | { type: 'END_TRANSITION' }
-
-const initialTran: TranState = { phase: 'idle', dir: 'forward', prevStep: 0, displayStep: 0 }
-
-function tranReducer(state: TranState, action: TranAction): TranState {
-  switch (action.type) {
-    case 'INIT':
-      return { phase: 'idle', dir: 'forward', prevStep: action.step, displayStep: action.step }
-    case 'START_HERO':
-      return { phase: 'hero-transition', dir: 'forward', prevStep: state.displayStep, displayStep: action.step }
-    case 'START_SLIDE':
-      return { phase: 'sliding', dir: action.dir, prevStep: state.displayStep, displayStep: action.step }
-    case 'END_TRANSITION':
-      return { phase: 'idle', dir: 'forward', prevStep: state.displayStep, displayStep: state.displayStep }
-  }
-}
 
 function renderBlock(
   step: number,
@@ -86,7 +55,6 @@ export function OnboardingContainer() {
     data,
     totalSteps,
     loading,
-    isWelcome,
     canProceed,
     answerQuestion,
     setTranscript,
@@ -95,30 +63,28 @@ export function OnboardingContainer() {
     resetOnboarding,
   } = useOnboarding()
 
-  const [tran, dispatchTran] = useReducer(tranReducer, initialTran)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [videoState, setVideoState] = useState<'idle' | 'showing' | 'hiding'>('idle')
-  const initialized = useRef(false)
+  
+  // Clean transition state
+  const [displayStep, setDisplayStep] = useState(0)
+  const [isFading, setIsFading] = useState(false)
 
+  // Initialize displayStep once loading is done
   useEffect(() => {
-    if (loading) return
-    if (!initialized.current) {
-      initialized.current = true
-      dispatchTran({ type: 'INIT', step: currentStep })
+    if (!loading && displayStep === 0 && currentStep > 0) {
+      setDisplayStep(currentStep)
     }
-  }, [currentStep, loading])
+  }, [loading, currentStep, displayStep])
 
-  const startTransition = useCallback((nextStep: number, dir: Dir, onAdvance: () => void) => {
-    const isFirstCard = dir === 'forward' && nextStep === 1
-    if (isFirstCard) {
-      onAdvance()
-      dispatchTran({ type: 'START_HERO', step: nextStep })
-      setTimeout(() => dispatchTran({ type: 'END_TRANSITION' }), 600)
-    } else {
-      onAdvance()
-      dispatchTran({ type: 'START_SLIDE', step: nextStep, dir })
-      setTimeout(() => dispatchTran({ type: 'END_TRANSITION' }), 500)
-    }
+  // Handle clean fade transitions
+  const changeStep = useCallback((newStep: number, updater: () => void) => {
+    setIsFading(true)
+    setTimeout(() => {
+      updater()
+      setDisplayStep(newStep)
+      setIsFading(false)
+    }, 200) // 200ms fade out
   }, [])
 
   const handleAnswer = useCallback(
@@ -137,12 +103,9 @@ export function OnboardingContainer() {
 
   const handleGoNext = useCallback(() => {
     if (!canProceed || saveStatus !== 'idle' || videoState !== 'idle') return
-    if (isWelcome) {
-      startTransition(1, 'forward', () => goNext())
-      return
-    }
 
     const isSubmitting = currentStep === totalSteps
+    const isWelcome = currentStep === 0
 
     if (isSubmitting) {
       setVideoState('showing')
@@ -153,30 +116,32 @@ export function OnboardingContainer() {
           setSaveStatus('saved')
           setTimeout(() => {
             setSaveStatus('idle')
-            startTransition(currentStep + 1, 'forward', () => goNext())
+            changeStep(currentStep + 1, goNext)
           }, 200)
         }, 500)
       }, 2500)
+    } else if (isWelcome) {
+      changeStep(1, goNext)
     } else {
       setSaveStatus('saving')
       setTimeout(() => {
         setSaveStatus('saved')
         setTimeout(() => {
           setSaveStatus('idle')
-          startTransition(currentStep + 1, 'forward', () => goNext())
+          changeStep(currentStep + 1, goNext)
         }, 200)
       }, 200)
     }
-  }, [canProceed, saveStatus, videoState, goNext, isWelcome, currentStep, totalSteps, startTransition])
+  }, [canProceed, saveStatus, videoState, goNext, currentStep, totalSteps, changeStep])
 
   const handleGoBack = useCallback(() => {
     if (saveStatus !== 'idle' || videoState !== 'idle') return
-    startTransition(currentStep - 1, 'backward', () => goBack())
-  }, [saveStatus, videoState, goBack, currentStep, startTransition])
+    changeStep(currentStep - 1, goBack)
+  }, [saveStatus, videoState, goBack, currentStep, changeStep])
 
   const handleReset = useCallback(() => {
-    startTransition(0, 'backward', () => resetOnboarding())
-  }, [resetOnboarding, startTransition])
+    changeStep(0, resetOnboarding)
+  }, [resetOnboarding, changeStep])
 
   if (loading) {
     return (
@@ -189,57 +154,20 @@ export function OnboardingContainer() {
     )
   }
 
-  const idleContent = (
-    <div key={tran.displayStep} className="flex-1 flex flex-col">
-      {renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
-    </div>
-  )
-
-  const isWelcomeView = tran.displayStep === 0 && tran.phase === 'idle';
+  const isWelcomeView = displayStep === 0
 
   return (
     <div className="bg-page min-h-dvh flex flex-col">
       <main className="flex-1 flex flex-col px-4 pt-3 pb-5 md:pt-6 md:pb-8">
         <div className={`w-full mx-auto flex flex-col transition-all duration-500 ease-out ${isWelcomeView ? 'max-w-lg justify-center flex-1' : 'max-w-2xl flex-1'}`}>
-          <div className={`bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col relative overflow-hidden transition-all duration-500 ease-out ${isWelcomeView ? '' : 'flex-1 p-4 md:p-6'}`}>
-
-            {/* HERO: welcome → first question */}
-            {tran.phase === 'hero-transition' && (
-              <>
-                <div className="absolute inset-0 animate-hero-exit flex items-center justify-center">
-                  <WelcomeBlock onStart={handleGoNext} />
-                </div>
-                <div className="absolute inset-0 animate-hero-enter" style={{ animationDelay: '0.12s' }}>
-                  <div className="h-full flex flex-col">
-                    {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* SLIDING: card → card */}
-            {tran.phase === 'sliding' && (
-              <>
-                <div
-                  className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-out-left' : 'animate-slide-out-right'}`}
-                >
-                  <div className="h-full flex flex-col">
-                    {renderBlock(tran.prevStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
-                  </div>
-                </div>
-                <div
-                  className={`absolute inset-0 ${tran.dir === 'forward' ? 'animate-slide-in-right' : 'animate-slide-in-left'}`}
-                  style={{ animationDelay: '0.04s' }}
-                >
-                  <div className="h-full flex flex-col">
-                    {currentBlock && renderBlock(tran.displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* IDLE: normal display */}
-            {tran.phase === 'idle' && idleContent}
+          <div className={`bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col transition-all duration-500 ease-out ${isWelcomeView ? '' : 'flex-1 p-4 md:p-6'}`}>
+            
+            {/* CLEAN FADE WRAPPER */}
+            <div 
+              className={`flex-1 flex flex-col transition-all duration-200 ease-in-out ${isFading ? 'opacity-0 scale-[0.98] translate-y-1' : 'opacity-100 scale-100 translate-y-0'}`}
+            >
+              {renderBlock(displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+            </div>
 
           </div>
         </div>
