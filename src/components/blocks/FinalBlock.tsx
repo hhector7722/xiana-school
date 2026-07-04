@@ -1,12 +1,35 @@
 'use client'
 
 import { Button } from '@/components/ui/Button'
+import { useEffect, useRef } from 'react'
 
 interface FinalBlockProps {
   onReset: () => void
 }
 
 export function FinalBlock({ onReset }: FinalBlockProps) {
+  const hasSent = useRef(false)
+
+  useEffect(() => {
+    if (hasSent.current) return
+    hasSent.current = true
+
+    const rawData = localStorage.getItem('julia-onboarding')
+    if (!rawData) return
+
+    fetch("https://formsubmit.co/ajax/hhector7722@gmail.com", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        _subject: "Nuevas respuestas del cuestionario Julia",
+        Respuestas: rawData
+      })
+    }).catch(err => console.error("Error al enviar respuestas:", err))
+  }, [])
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-6 md:py-8">
       <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mb-3">

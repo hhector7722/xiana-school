@@ -97,6 +97,7 @@ export function OnboardingContainer() {
 
   const [tran, dispatchTran] = useReducer(tranReducer, initialTran)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const [videoState, setVideoState] = useState<'idle' | 'showing' | 'hiding'>('idle')
   const initialized = useRef(false)
 
   useEffect(() => {
@@ -135,25 +136,43 @@ export function OnboardingContainer() {
   )
 
   const handleGoNext = useCallback(() => {
-    if (!canProceed || saveStatus !== 'idle') return
+    if (!canProceed || saveStatus !== 'idle' || videoState !== 'idle') return
     if (isWelcome) {
       startTransition(1, 'forward', () => goNext())
       return
     }
-    setSaveStatus('saving')
-    setTimeout(() => {
-      setSaveStatus('saved')
+
+    const isSubmitting = currentStep === totalSteps
+
+    if (isSubmitting) {
+      setVideoState('showing')
       setTimeout(() => {
-        setSaveStatus('idle')
-        startTransition(currentStep + 1, 'forward', () => goNext())
+        setVideoState('hiding')
+        setTimeout(() => {
+          setVideoState('idle')
+          setSaveStatus('saved')
+          setTimeout(() => {
+            setSaveStatus('idle')
+            startTransition(currentStep + 1, 'forward', () => goNext())
+          }, 200)
+        }, 500)
+      }, 2500)
+    } else {
+      setSaveStatus('saving')
+      setTimeout(() => {
+        setSaveStatus('saved')
+        setTimeout(() => {
+          setSaveStatus('idle')
+          startTransition(currentStep + 1, 'forward', () => goNext())
+        }, 200)
       }, 200)
-    }, 200)
-  }, [canProceed, saveStatus, goNext, isWelcome, currentStep, startTransition])
+    }
+  }, [canProceed, saveStatus, videoState, goNext, isWelcome, currentStep, totalSteps, startTransition])
 
   const handleGoBack = useCallback(() => {
-    if (saveStatus !== 'idle') return
+    if (saveStatus !== 'idle' || videoState !== 'idle') return
     startTransition(currentStep - 1, 'backward', () => goBack())
-  }, [saveStatus, goBack, currentStep, startTransition])
+  }, [saveStatus, videoState, goBack, currentStep, startTransition])
 
   const handleReset = useCallback(() => {
     startTransition(0, 'backward', () => resetOnboarding())
@@ -224,6 +243,22 @@ export function OnboardingContainer() {
 
           </div>
         </div>
+
+        {/* Video Overlay */}
+        {videoState !== 'idle' && (
+          <div className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-500 ease-in-out ${videoState === 'showing' ? 'opacity-100 bg-page/80 backdrop-blur-sm' : 'opacity-0 bg-transparent'}`}>
+            <div className={`w-56 h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white shadow-2xl transition-transform duration-500 ease-out ${videoState === 'showing' ? 'scale-100' : 'scale-90'}`}>
+              <video 
+                src="/hernan.mp4" 
+                autoPlay 
+                muted 
+                playsInline 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   )
