@@ -2,16 +2,23 @@
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary'
+  size?: 'sm' | 'md'
 }
 
 export function Button({
   variant = 'primary',
+  size = 'md',
   className = '',
   children,
   ...props
 }: ButtonProps) {
+  const sizes = {
+    sm: 'h-8 px-3.5 text-xs rounded-lg',
+    md: 'h-10 px-5 text-sm rounded-xl',
+  }
+
   const base =
-    'inline-flex items-center justify-center rounded-xl h-10 px-5 text-sm font-medium transition-all duration-150 disabled:opacity-40 disabled:pointer-events-none focus:outline-none active:scale-[0.98]'
+    'inline-flex items-center justify-center font-medium transition-all duration-150 disabled:opacity-40 disabled:pointer-events-none focus:outline-none active:scale-[0.98]'
 
   const styles = {
     primary:
@@ -22,7 +29,7 @@ export function Button({
 
   return (
     <button
-      className={`${base} ${styles[variant]} ${className}`}
+      className={`${base} ${sizes[size]} ${styles[variant]} ${className}`}
       aria-disabled={props.disabled ? true : undefined}
       {...props}
     >

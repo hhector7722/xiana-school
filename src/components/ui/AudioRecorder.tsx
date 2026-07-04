@@ -7,6 +7,7 @@ interface AudioRecorderProps {
   question: string
   initialTranscript?: string
   onTranscriptChange: (transcript: string) => void
+  compact?: boolean
 }
 
 const COLS = 100
@@ -82,7 +83,7 @@ function formatTime(seconds: number) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-export function AudioRecorder({ question, initialTranscript, onTranscriptChange }: AudioRecorderProps) {
+export function AudioRecorder({ question, initialTranscript, onTranscriptChange, compact = false }: AudioRecorderProps) {
   const { status, transcript, volume, startRecording, stopRecording, reset } =
     useAudioRecorder()
 
@@ -143,9 +144,21 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
 
   const showRecordButton = status === 'idle' || status === 'done'
 
+  const mainGap = compact ? 'gap-2' : 'gap-2.5'
+  const questionClass = compact ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'
+  const textareaClass = compact ? 'px-2.5 py-1.5 text-xs rounded-md' : 'px-3 py-2 text-sm rounded-lg'
+  const btnClass = compact
+    ? 'h-7 px-3 text-[11px] rounded-md'
+    : 'h-8 px-3.5 text-xs rounded-lg'
+  const recClass = compact ? 'px-2 py-1.5 rounded-md gap-1.5' : 'px-3 py-2 rounded-lg gap-2'
+  const dotClass = compact ? 'w-1.5 h-1.5' : 'w-2 h-2'
+  const timerClass = compact ? 'text-[11px] min-w-[30px]' : 'text-xs min-w-[36px]'
+  const stopClass = compact ? 'w-6 h-6' : 'w-7 h-7'
+  const iconSize = compact ? 8 : 10
+
   return (
-    <div className="flex flex-col gap-2.5">
-      <p className="text-sm sm:text-base font-semibold text-gray-900 leading-snug">{question}</p>
+    <div className={`flex flex-col ${mainGap}`}>
+      <p className={`${questionClass} font-semibold text-gray-900 leading-snug`}>{question}</p>
 
       <textarea
         ref={textareaRef}
@@ -153,7 +166,7 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
         onChange={handleTextChange}
         placeholder="Escribe tu respuesta aquí..."
         rows={1}
-        className="w-full rounded-lg border border-[#ECECEC] px-3 py-2 text-sm text-gray-700 resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent/20 leading-relaxed"
+        className={`w-full border border-[#ECECEC] ${textareaClass} text-gray-700 resize-none overflow-hidden focus:outline-none focus:ring-2 focus:ring-accent/20 leading-relaxed`}
         aria-label="Respuesta"
       />
 
@@ -162,7 +175,7 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
           type="button"
           onClick={handleStartRecording}
           aria-label="Empezar a grabar respuesta"
-          className="inline-flex items-center justify-center rounded-lg h-8 px-3.5 text-xs font-medium transition-all duration-150 bg-accent text-white border border-accent hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent/30 gap-1.5 w-fit active:scale-[0.98]"
+          className={`inline-flex items-center justify-center ${btnClass} font-medium transition-all duration-150 bg-accent text-white border border-accent hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent/30 gap-1.5 w-fit active:scale-[0.98]`}
         >
           <svg
             width="11"
@@ -185,13 +198,13 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
 
       {status === 'recording' && (
         <div
-          className="flex items-center gap-2 rounded-lg border border-[#ECECEC] px-3 py-2"
+          className={`flex items-center ${recClass} border border-[#ECECEC]`}
           role="status"
           aria-label="Grabación en curso"
         >
-          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+          <span className={`${dotClass} rounded-full bg-red-500 animate-pulse shrink-0`} />
 
-          <span className="text-xs tabular-nums text-gray-500 font-medium min-w-[36px]">
+          <span className={`${timerClass} tabular-nums text-gray-500 font-medium`}>
             {formatTime(elapsed)}
           </span>
 
@@ -203,11 +216,11 @@ export function AudioRecorder({ question, initialTranscript, onTranscriptChange 
             type="button"
             onClick={stopRecording}
             aria-label="Detener grabación"
-            className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-red-300 active:scale-[0.92]"
+            className={`shrink-0 ${stopClass} flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-red-300 active:scale-[0.92]`}
           >
             <svg
-              width="10"
-              height="10"
+              width={iconSize}
+              height={iconSize}
               viewBox="0 0 24 24"
               fill="currentColor"
               aria-hidden="true"
