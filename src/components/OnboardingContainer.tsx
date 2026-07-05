@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useOnboarding } from '@/hooks/useOnboarding'
 import { WelcomeBlock } from '@/components/blocks/WelcomeBlock'
 import { StepBlock } from '@/components/blocks/StepBlock'
@@ -76,7 +77,6 @@ export function OnboardingContainer() {
   
   // Clean transition state
   const [displayStep, setDisplayStep] = useState(0)
-  const [isFading, setIsFading] = useState(false)
 
   // Initialize displayStep once loading is done
   useEffect(() => {
@@ -87,12 +87,8 @@ export function OnboardingContainer() {
 
   // Handle clean fade transitions
   const changeStep = useCallback((newStep: number, updater: () => void) => {
-    setIsFading(true)
-    setTimeout(() => {
-      updater()
-      setDisplayStep(newStep)
-      setIsFading(false)
-    }, 200) // 200ms fade out
+    updater()
+    setDisplayStep(newStep)
   }, [])
 
   const handleAnswer = useCallback(
@@ -168,18 +164,32 @@ export function OnboardingContainer() {
   return (
     <div className="bg-page min-h-dvh flex flex-col">
       <main className="flex-1 flex flex-col px-4 pt-3 pb-5 md:pt-6 md:pb-8">
-        <div className={`w-full mx-auto flex flex-col transition-all duration-500 ease-out ${isWelcomeView ? 'max-w-lg justify-center flex-1' : 'max-w-2xl flex-1'}`}>
-          <div className={`bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col transition-all duration-500 ease-out ${isWelcomeView ? '' : 'flex-1 p-4 md:p-6'}`}>
+        <motion.div 
+          layout
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className={`w-full mx-auto flex flex-col ${isWelcomeView ? 'max-w-lg justify-center flex-1' : 'max-w-2xl flex-1'}`}
+        >
+          <motion.div 
+            layout
+            className={`bg-white rounded-xl border border-[#ECECEC] shadow-[0_1px_2px_rgba(0,0,0,0.04)] flex flex-col overflow-hidden ${isWelcomeView ? '' : 'flex-1 p-4 md:p-6'}`}
+          >
             
             {/* CLEAN FADE WRAPPER */}
-            <div 
-              className={`flex-1 flex flex-col transition-all duration-200 ease-in-out ${isFading ? 'opacity-0 scale-[0.98] translate-y-1' : 'opacity-100 scale-100 translate-y-0'}`}
-            >
-              {renderBlock(displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div 
+                key={displayStep}
+                initial={{ opacity: 0, scale: 0.98, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98, y: -15 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="flex-1 flex flex-col"
+              >
+                {renderBlock(displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
+              </motion.div>
+            </AnimatePresence>
 
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Video Overlay */}
         <div 
