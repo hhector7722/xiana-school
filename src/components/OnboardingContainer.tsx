@@ -109,12 +109,8 @@ export function OnboardingContainer() {
     setVideoState('hiding')
     setTimeout(() => {
       setVideoState('idle')
-      setSaveStatus('saved')
-      setTimeout(() => {
-        setSaveStatus('idle')
-        changeStep(currentStep + 1, goNext)
-      }, 200)
-    }, 500)
+      changeStep(currentStep + 1, goNext)
+    }, 1000)
   }, [changeStep, currentStep, goNext])
 
   const handleGoNext = useCallback(() => {
@@ -179,9 +175,13 @@ export function OnboardingContainer() {
               <motion.div 
                 key={displayStep}
                 initial={{ opacity: 0, scale: 0.98, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
+                animate={{ 
+                  opacity: (displayStep === totalSteps && videoState !== 'idle') ? 0 : 1, 
+                  scale: 1, 
+                  y: 0 
+                }}
                 exit={{ opacity: 0, scale: 0.98, y: -15 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
                 className="flex-1 flex flex-col"
               >
                 {renderBlock(displayStep, currentBlock, data, totalSteps, handleGoNext, handleGoBack, handleAnswer, handleTranscript, canProceed, saveStatus, handleReset)}
@@ -193,10 +193,10 @@ export function OnboardingContainer() {
 
         {/* Video Overlay */}
         <div 
-          className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-all duration-500 ease-in-out ${videoState === 'showing' ? 'opacity-100 bg-black/40 backdrop-blur-sm' : 'opacity-0 bg-transparent'}`}
+          className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-all ${videoState === 'hiding' ? 'duration-1000' : 'duration-500'} ease-in-out ${videoState === 'showing' ? 'opacity-100 bg-black/40 backdrop-blur-sm' : 'opacity-0 bg-transparent'}`}
           style={{ visibility: videoState === 'idle' ? 'hidden' : 'visible' }}
         >
-          <div className={`w-56 h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-white shadow-2xl transition-transform duration-500 ease-out bg-black ${videoState === 'showing' ? 'scale-100 pointer-events-auto' : 'scale-90 pointer-events-none'}`}>
+          <div className={`w-56 h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-white shadow-2xl transition-transform ${videoState === 'hiding' ? 'duration-1000' : 'duration-500'} ease-out bg-black ${videoState === 'showing' ? 'scale-100 pointer-events-auto' : 'scale-90 pointer-events-none'}`}>
             <video 
               ref={videoRef}
               src="/hernan.mp4" 
