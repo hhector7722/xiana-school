@@ -25,7 +25,6 @@ interface StepBlockProps {
 
 const config: Record<Density, {
   gap: string
-  questionGap: string
   questionItemGap: string
   title: string
   subtitle: string
@@ -37,7 +36,6 @@ const config: Record<Density, {
 }> = {
   spacious: {
     gap: 'gap-5',
-    questionGap: 'space-y-4',
     questionItemGap: 'space-y-2',
     title: 'text-xl sm:text-2xl',
     subtitle: 'text-xs sm:text-sm',
@@ -49,7 +47,6 @@ const config: Record<Density, {
   },
   normal: {
     gap: 'gap-3',
-    questionGap: 'space-y-3',
     questionItemGap: 'space-y-1.5',
     title: 'text-xl sm:text-2xl',
     subtitle: 'text-xs sm:text-sm',
@@ -61,7 +58,6 @@ const config: Record<Density, {
   },
   compact: {
     gap: 'gap-1.5',
-    questionGap: 'space-y-2',
     questionItemGap: 'space-y-1',
     title: 'text-lg sm:text-xl',
     subtitle: 'text-[11px] sm:text-xs',
@@ -122,17 +118,15 @@ export function StepBlock({
         <hr className="border-t border-gray-100 mt-0.5" />
       </div>
 
-      <div className={c.questionGap}>
-        {block.questions.map((q) => (
-          <div key={q.id} className={c.questionItemGap}>
-            <p className={`${c.questionText} font-semibold text-gray-900 leading-snug`}>{q.text}</p>
-            <YesNoToggle
-              value={answers[q.id] ?? null}
-              onChange={(v) => onAnswer(q.id, v)}
-            />
-          </div>
-        ))}
-      </div>
+      {block.questions.map((q) => (
+        <div key={q.id} className={c.questionItemGap}>
+          <p className={`${c.questionText} font-semibold text-gray-900 leading-snug`}>{q.text}</p>
+          <YesNoToggle
+            value={answers[q.id] ?? null}
+            onChange={(v) => onAnswer(q.id, v)}
+          />
+        </div>
+      ))}
 
       <AudioRecorder
         question={block.audioPrompt}

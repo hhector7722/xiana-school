@@ -69,6 +69,7 @@ export function OnboardingContainer() {
 
   useEffect(() => {
     if (videoState === 'showing' && videoRef.current) {
+      videoRef.current.currentTime = 0
       videoRef.current.play().catch(console.error)
     }
   }, [videoState])
@@ -181,20 +182,21 @@ export function OnboardingContainer() {
         </div>
 
         {/* Video Overlay */}
-        {videoState !== 'idle' && (
-          <div className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-all duration-500 ease-in-out bg-black/40 backdrop-blur-sm ${videoState === 'showing' ? 'opacity-100' : 'opacity-0'}`}>
-            <div className={`w-[90vw] max-w-sm md:max-w-md rounded-2xl overflow-hidden shadow-2xl transition-transform duration-500 ease-out pointer-events-auto bg-black flex items-center justify-center ${videoState === 'showing' ? 'scale-100' : 'scale-90'}`}>
-              <video 
-                ref={videoRef}
-                src="/hernan.mp4" 
-                autoPlay 
-                playsInline 
-                onEnded={handleVideoEnd}
-                className="w-full h-auto max-h-[80vh] object-contain"
-              />
-            </div>
+        <div 
+          className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none transition-all duration-500 ease-in-out ${videoState === 'showing' ? 'opacity-100 bg-black/40 backdrop-blur-sm' : 'opacity-0 bg-transparent'}`}
+          style={{ visibility: videoState === 'idle' ? 'hidden' : 'visible' }}
+        >
+          <div className={`w-56 h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-white shadow-2xl transition-transform duration-500 ease-out bg-black ${videoState === 'showing' ? 'scale-100 pointer-events-auto' : 'scale-90 pointer-events-none'}`}>
+            <video 
+              ref={videoRef}
+              src="/hernan.mp4" 
+              preload="auto"
+              playsInline 
+              onEnded={handleVideoEnd}
+              className="w-full h-full object-cover"
+            />
           </div>
-        )}
+        </div>
 
       </main>
     </div>
